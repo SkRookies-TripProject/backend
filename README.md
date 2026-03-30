@@ -9,12 +9,14 @@
 - Spring Data JPA
 
 ## 📂 프로젝트 구조
+```
 src
 ├ controller
 ├ service
 ├ repository
 ├ entity
 └ dto
+```
 
 ## 🚀 실행 방법
 npm run dev
