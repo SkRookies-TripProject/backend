@@ -1,7 +1,7 @@
 package com.costrip.costrip_backend.auth.userinfo;
 
-import com.employee.api.auth.jwt.AuthRequest;
-import com.employee.api.auth.jwt.JwtService;
+import com.costrip.costrip_backend.auth.jwt.AuthRequest;
+import com.costrip.costrip_backend.auth.jwt.JwtService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;

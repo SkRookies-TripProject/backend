@@ -1,7 +1,8 @@
-package com.employee.api.auth.filter;
+package com.costrip.costrip_backend.auth.filter;
 
-import com.employee.api.auth.jwt.JwtService;
-import com.employee.api.auth.userinfo.UserInfoUserDetailsService;
+import com.costrip.costrip_backend.auth.userinfo.UserInfoUserDetailsService;
+import com.costrip.costrip_backend.auth.jwt.JwtService;
+import com.costrip.costrip_backend.auth.userinfo.UserInfoUserDetailsService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

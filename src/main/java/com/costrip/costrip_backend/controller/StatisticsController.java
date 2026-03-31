@@ -3,7 +3,7 @@ package com.costrip.costrip_backend.controller;
 import com.costrip.costrip_backend.dto.common.ApiResponse;
 import com.costrip.costrip_backend.dto.statistics.BudgetSummaryResponseDto;
 import com.costrip.costrip_backend.dto.statistics.StatisticsResponseDto;
-import com.costrip.costrip_backend.service.UserService;
+import com.costrip.costrip_backend.service.StatisticsService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class StatisticsController {
 
-    private final UserService userService;
+    private final StatisticsService statisticsService;
 
     /**
      * GET /api/trips/{tripId}/statistics
@@ -26,7 +26,7 @@ public class StatisticsController {
             @AuthenticationPrincipal UserDetails userDetails,
             @PathVariable Long tripId) {
 
-        StatisticsResponseDto responseDto = userService.getStatistics(
+        StatisticsResponseDto responseDto = statisticsService.getStatistics(
                 userDetails.getUsername(), tripId);
         return ResponseEntity
                 .ok(ApiResponse.success("통계 조회 성공", responseDto));
@@ -41,7 +41,7 @@ public class StatisticsController {
             @AuthenticationPrincipal UserDetails userDetails,
             @PathVariable Long tripId) {
 
-        BudgetSummaryResponseDto responseDto = userService.getBudgetSummary(
+        BudgetSummaryResponseDto responseDto = statisticsService.getBudgetSummary(
                 userDetails.getUsername(), tripId);
         return ResponseEntity
                 .ok(ApiResponse.success("예산 현황 조회 성공", responseDto));

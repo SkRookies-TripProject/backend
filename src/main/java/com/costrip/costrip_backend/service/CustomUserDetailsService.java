@@ -1,7 +1,7 @@
-package com.costrip.service;
+package com.costrip.costrip_backend.service;
 
-import com.costrip.entity.User;
-import com.costrip.repository.UserRepository;
+import com.costrip.costrip_backend.entity.User;
+import com.costrip.costrip_backend.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;

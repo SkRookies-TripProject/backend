@@ -1,7 +1,7 @@
-package com.employee.api.auth.config;
+package com.costrip.costrip_backend.auth.config;
 
-import com.employee.api.auth.filter.JwtAuthenticationFilter;
-import com.employee.api.auth.userinfo.UserInfoUserDetailsService;
+import com.costrip.costrip_backend.auth.filter.JwtAuthenticationFilter;
+import com.costrip.costrip_backend.auth.userinfo.UserInfoUserDetailsService;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;

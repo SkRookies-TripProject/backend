@@ -4,6 +4,7 @@ import com.costrip.costrip_backend.dto.auth.LoginRequestDto;
 import com.costrip.costrip_backend.dto.auth.LoginResponseDto;
 import com.costrip.costrip_backend.dto.auth.RegisterRequestDto;
 import com.costrip.costrip_backend.dto.common.ApiResponse;
+import com.costrip.costrip_backend.service.AuthService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;

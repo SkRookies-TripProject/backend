@@ -6,7 +6,6 @@ import com.costrip.costrip_backend.dto.trip.TripRequestDto;
 import com.costrip.costrip_backend.dto.trip.TripResponseDto;
 import com.costrip.costrip_backend.entity.enums.TripStatus;
 import com.costrip.costrip_backend.service.TripService;
-import com.costrip.costrip_backend.service.impl.TripServiceImpl;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -22,7 +21,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class TripController {
 
-    private final TripServiceImpl tripService;
+    private final TripService tripService;
 
     /**
      * GET /api/trips

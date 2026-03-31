@@ -34,9 +34,6 @@ public class Trip {
     @Column(nullable = false, length = 100)
     private String country;
 
-    @Column(length = 100)
-    private String city;
-
     @Column(nullable = false)
     private LocalDate startDate;
 

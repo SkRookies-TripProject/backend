@@ -1,10 +1,11 @@
-package com.costrip.service;
+package com.costrip.costrip_backend.service;
 
-import com.costrip.dto.auth.LoginRequestDto;
-import com.costrip.dto.auth.LoginResponseDto;
-import com.costrip.dto.auth.RegisterRequestDto;
-import com.costrip.entity.User;
-import com.costrip.repository.UserRepository;
+import com.costrip.costrip_backend.auth.jwt.JwtService;
+import com.costrip.costrip_backend.dto.auth.LoginRequestDto;
+import com.costrip.costrip_backend.dto.auth.LoginResponseDto;
+import com.costrip.costrip_backend.dto.auth.RegisterRequestDto;
+import com.costrip.costrip_backend.entity.User;
+import com.costrip.costrip_backend.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;

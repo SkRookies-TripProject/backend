@@ -1,4 +1,4 @@
-package com.employee.api.auth.jwt;
+package com.costrip.costrip_backend.auth.jwt;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;

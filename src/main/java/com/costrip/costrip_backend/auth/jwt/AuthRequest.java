@@ -1,4 +1,4 @@
-package com.employee.api.auth.jwt;
+package com.costrip.costrip_backend.auth.jwt;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;

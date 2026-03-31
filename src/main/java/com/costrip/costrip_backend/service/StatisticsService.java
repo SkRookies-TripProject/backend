@@ -1,14 +1,14 @@
-package com.costrip.service;
+package com.costrip.costrip_backend.service;
 
-import com.costrip.dto.statistics.BudgetSummaryResponseDto;
-import com.costrip.dto.statistics.StatisticsResponseDto;
-import com.costrip.dto.statistics.StatisticsResponseDto.DailyExpense;
-import com.costrip.entity.Trip;
-import com.costrip.entity.User;
-import com.costrip.entity.enums.ExpenseCategory;
-import com.costrip.repository.ExpenseRepository;
-import com.costrip.repository.TripRepository;
-import com.costrip.repository.UserRepository;
+import com.costrip.costrip_backend.dto.statistics.BudgetSummaryResponseDto;
+import com.costrip.costrip_backend.dto.statistics.StatisticsResponseDto;
+import com.costrip.costrip_backend.dto.statistics.StatisticsResponseDto.DailyExpense;
+import com.costrip.costrip_backend.entity.Trip;
+import com.costrip.costrip_backend.entity.User;
+import com.costrip.costrip_backend.entity.enums.ExpenseCategory;
+import com.costrip.costrip_backend.repository.ExpenseRepository;
+import com.costrip.costrip_backend.repository.TripRepository;
+import com.costrip.costrip_backend.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
