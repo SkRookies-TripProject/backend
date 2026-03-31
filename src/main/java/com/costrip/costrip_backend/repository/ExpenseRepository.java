@@ -1,8 +1,8 @@
 package com.costrip.costrip_backend.repository;
 
-import com.costrip.entity.Expense;
-import com.costrip.entity.Trip;
-import com.costrip.entity.enums.ExpenseCategory;
+import com.costrip.costrip_backend.entity.Expense;
+import com.costrip.costrip_backend.entity.Trip;
+import com.costrip.costrip_backend.entity.enums.ExpenseCategory;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;

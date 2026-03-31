@@ -1,4 +1,4 @@
-package com.employee.api.auth.userinfo;
+package com.costrip.costrip_backend.auth.userinfo;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;

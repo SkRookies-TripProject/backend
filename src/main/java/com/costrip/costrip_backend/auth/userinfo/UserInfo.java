@@ -1,4 +1,4 @@
-package com.employee.api.auth.userinfo;
+package com.costrip.costrip_backend.auth.userinfo;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;

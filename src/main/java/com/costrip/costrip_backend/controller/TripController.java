@@ -1,10 +1,12 @@
 package com.costrip.costrip_backend.controller;
 
+import com.costrip.costrip_backend.auth.userinfo.UserInfoUserDetails;
 import com.costrip.costrip_backend.dto.common.ApiResponse;
 import com.costrip.costrip_backend.dto.trip.TripRequestDto;
 import com.costrip.costrip_backend.dto.trip.TripResponseDto;
 import com.costrip.costrip_backend.entity.enums.TripStatus;
 import com.costrip.costrip_backend.service.TripService;
+import com.costrip.costrip_backend.service.impl.TripServiceImpl;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -20,7 +22,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class TripController {
 
-    private final TripService tripService;
+    private final TripServiceImpl tripService;
 
     /**
      * GET /api/trips
@@ -28,7 +30,7 @@ public class TripController {
      */
     @GetMapping
     public ResponseEntity<ApiResponse<List<TripResponseDto>>> getTrips(
-            @AuthenticationPrincipal UserDetails userDetails,
+            @AuthenticationPrincipal UserInfoUserDetails userDetails,
             @RequestParam(required = false) TripStatus status) {
 
         List<TripResponseDto> trips = tripService.getTripsByUser(userDetails.getUsername(), status);
@@ -42,7 +44,7 @@ public class TripController {
      */
     @PostMapping
     public ResponseEntity<ApiResponse<TripResponseDto>> createTrip(
-            @AuthenticationPrincipal UserDetails userDetails,
+            @AuthenticationPrincipal UserInfoUserDetails userDetails,
             @Valid @RequestBody TripRequestDto requestDto) {
 
         TripResponseDto responseDto = tripService.createTrip(userDetails.getUsername(), requestDto);
@@ -57,7 +59,7 @@ public class TripController {
      */
     @GetMapping("/{tripId}")
     public ResponseEntity<ApiResponse<TripResponseDto>> getTrip(
-            @AuthenticationPrincipal UserDetails userDetails,
+            @AuthenticationPrincipal UserInfoUserDetails userDetails,
             @PathVariable Long tripId) {
 
         TripResponseDto responseDto = tripService.getTripById(userDetails.getUsername(), tripId);
@@ -71,7 +73,7 @@ public class TripController {
      */
     @PutMapping("/{tripId}")
     public ResponseEntity<ApiResponse<TripResponseDto>> updateTrip(
-            @AuthenticationPrincipal UserDetails userDetails,
+            @AuthenticationPrincipal UserInfoUserDetails userDetails,
             @PathVariable Long tripId,
             @Valid @RequestBody TripRequestDto requestDto) {
 
@@ -86,7 +88,7 @@ public class TripController {
      */
     @DeleteMapping("/{tripId}")
     public ResponseEntity<ApiResponse<Void>> deleteTrip(
-            @AuthenticationPrincipal UserDetails userDetails,
+            @AuthenticationPrincipal UserInfoUserDetails userDetails,
             @PathVariable Long tripId) {
 
         tripService.deleteTrip(userDetails.getUsername(), tripId);

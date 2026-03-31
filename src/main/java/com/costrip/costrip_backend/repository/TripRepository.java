@@ -23,6 +23,9 @@ public interface TripRepository extends JpaRepository<Trip, Long> {
     // 사용자의 특정 여행 조회 (소유권 확인 포함)
     Optional<Trip> findByIdAndUser(Long id, User user);
 
+    List<Trip> findByUser(User user);
+    List<Trip> findByUserAndStatus(User user, TripStatus status);
+
     // 사용자의 여행 ID 존재 여부
     boolean existsByIdAndUser(Long id, User user);
 
