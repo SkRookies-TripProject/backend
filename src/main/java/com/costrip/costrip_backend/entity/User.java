@@ -26,24 +26,26 @@ public class User {
     @Column(nullable = false, length = 255)
     private String password;
 
-    @Column(nullable = false, length = 50)
+    @Column(nullable = false, length = 100)
     private String name;
 
-    @Column(nullable = false, updatable = false)
+    @Column(nullable = false, length = 20)
+    private String role;
+
+    @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 
-    // 연관관계: User 1 ──── N Trip
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     private List<Trip> trips = new ArrayList<>();
 
-    // 연관관계: User 1 ──── N CardHistory
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    @Builder.Default
-    private List<CardHistory> cardHistories = new ArrayList<>();
-
     @PrePersist
     protected void onCreate() {
         this.createdAt = LocalDateTime.now();
+
+        // 기본값 세팅
+        if (this.role == null) {
+            this.role = "USER";
+        }
     }
 }

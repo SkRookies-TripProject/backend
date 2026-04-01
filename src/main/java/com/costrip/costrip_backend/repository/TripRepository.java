@@ -8,28 +8,26 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
 @Repository
 public interface TripRepository extends JpaRepository<Trip, Long> {
 
-    // 사용자의 전체 여행 목록 (최신순)
-    List<Trip> findByUserOrderByCreatedAtDesc(User user);
+    //  사용자 전체 여행 목록 (최신순)
+    List<Trip> findByUserIdOrderByCreatedAtDesc(Long userId);
 
-    // 사용자의 상태별 여행 목록
-    List<Trip> findByUserAndStatusOrderByCreatedAtDesc(User user, TripStatus status);
+    //  사용자 특정 여행 조회 (소유권 체크)
+    Optional<Trip> findByIdAndUserId(Long id, Long userId);
 
-    // 사용자의 특정 여행 조회 (소유권 확인 포함)
-    Optional<Trip> findByIdAndUser(Long id, User user);
+    //  사용자 여행 목록
+    List<Trip> findByUserId(Long userId);
 
-    List<Trip> findByUser(User user);
-    List<Trip> findByUserAndStatus(User user, TripStatus status);
+    //  존재 여부 체크
+    boolean existsByIdAndUserId(Long id, Long userId);
 
-    // 사용자의 여행 ID 존재 여부
-    boolean existsByIdAndUser(Long id, User user);
-
-    // 여행의 총 지출 금액 조회
+    //  여행 총 지출 금액
     @Query("SELECT COALESCE(SUM(e.amount), 0) FROM Expense e WHERE e.trip.id = :tripId")
-    java.math.BigDecimal sumExpenseAmountByTripId(@Param("tripId") Long tripId);
+    BigDecimal sumExpenseAmountByTripId(@Param("tripId") Long tripId);
 }

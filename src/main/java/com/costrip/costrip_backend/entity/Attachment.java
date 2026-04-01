@@ -18,21 +18,20 @@ public class Attachment {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // 연관관계: Expense 1 ──── N Attachment (다 쪽 외래키)
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "expense_id", nullable = false)
-    private Expense expense;
+    @JoinColumn(name = "trip_id", nullable = false)
+    private Trip trip;
 
-    @Column(nullable = false, length = 255)
+    @Column(name = "file_name", length = 255)
     private String fileName;
 
-    @Column(nullable = false, length = 500)
+    @Column(name = "file_path", length = 500)
     private String filePath;
 
-    @Column(nullable = false, length = 50)
+    @Column(name = "file_type", length = 50)
     private String fileType;
 
-    @Column(nullable = false, updatable = false)
+    @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 
     @PrePersist

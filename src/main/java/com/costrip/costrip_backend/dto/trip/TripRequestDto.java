@@ -27,8 +27,4 @@ public class TripRequestDto {
 
     @NotNull(message = "종료일은 필수입니다.")
     private LocalDate endDate;
-
-    private BigDecimal budget;  // 미설정 가능
-
-    private TripStatus status;  // 미입력 시 서비스에서 PLANNED 기본값 설정
 }

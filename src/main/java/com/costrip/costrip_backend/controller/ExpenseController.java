@@ -18,21 +18,13 @@ import java.time.LocalDate;
 import java.util.List;
 
 @RestController
+@RequestMapping("/api")
 @RequiredArgsConstructor
 public class ExpenseController {
 
     private final ExpenseService expenseService;
 
-    /**
-     * GET /api/trips/{tripId}/expenses
-     * 지출 목록 조회 (카테고리·날짜 필터, 최신순·금액순 정렬)
-     *
-     * @param category   카테고리 필터 (선택)
-     * @param startDate  조회 시작일 (선택)
-     * @param endDate    조회 종료일 (선택)
-     * @param sort       정렬 기준: "latest"(최신순, 기본) | "amount"(금액순)
-     */
-    @GetMapping("/api/trips/{tripId}/expenses")
+    @GetMapping("/trips/{tripId}/expenses")
     public ResponseEntity<ApiResponse<List<ExpenseResponseDto>>> getExpenses(
             @AuthenticationPrincipal UserDetails userDetails,
             @PathVariable Long tripId,
@@ -43,15 +35,12 @@ public class ExpenseController {
 
         List<ExpenseResponseDto> expenses = expenseService.getExpenses(
                 userDetails.getUsername(), tripId, category, startDate, endDate, sort);
+
         return ResponseEntity
                 .ok(ApiResponse.success("지출 목록 조회 성공", expenses));
     }
 
-    /**
-     * POST /api/trips/{tripId}/expenses
-     * 지출 등록
-     */
-    @PostMapping("/api/trips/{tripId}/expenses")
+    @PostMapping("/trips/{tripId}/expenses")
     public ResponseEntity<ApiResponse<ExpenseResponseDto>> createExpense(
             @AuthenticationPrincipal UserDetails userDetails,
             @PathVariable Long tripId,
@@ -59,16 +48,13 @@ public class ExpenseController {
 
         ExpenseResponseDto responseDto = expenseService.createExpense(
                 userDetails.getUsername(), tripId, requestDto);
+
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(ApiResponse.success("지출이 등록되었습니다.", responseDto));
     }
 
-    /**
-     * PUT /api/expenses/{expenseId}
-     * 지출 수정
-     */
-    @PutMapping("/api/expenses/{expenseId}")
+    @PutMapping("/expenses/{expenseId}")
     public ResponseEntity<ApiResponse<ExpenseResponseDto>> updateExpense(
             @AuthenticationPrincipal UserDetails userDetails,
             @PathVariable Long expenseId,
@@ -76,20 +62,18 @@ public class ExpenseController {
 
         ExpenseResponseDto responseDto = expenseService.updateExpense(
                 userDetails.getUsername(), expenseId, requestDto);
+
         return ResponseEntity
                 .ok(ApiResponse.success("지출이 수정되었습니다.", responseDto));
     }
 
-    /**
-     * DELETE /api/expenses/{expenseId}
-     * 지출 삭제
-     */
-    @DeleteMapping("/api/expenses/{expenseId}")
+    @DeleteMapping("/expenses/{expenseId}")
     public ResponseEntity<ApiResponse<Void>> deleteExpense(
             @AuthenticationPrincipal UserDetails userDetails,
             @PathVariable Long expenseId) {
 
         expenseService.deleteExpense(userDetails.getUsername(), expenseId);
+
         return ResponseEntity
                 .ok(ApiResponse.success("지출이 삭제되었습니다.", null));
     }

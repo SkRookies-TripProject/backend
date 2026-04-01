@@ -23,38 +23,33 @@ public class Trip {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // 연관관계: User 1 ──── N Trip (다 쪽 외래키)
+    // 🔥 User FK
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @Column(nullable = false, length = 100)
+    @Column(nullable = false, length = 255)
     private String title;
 
     @Column(nullable = false, length = 100)
     private String country;
 
-    @Column(nullable = false)
+    @Column(name = "start_date", nullable = false)
     private LocalDate startDate;
 
-    @Column(nullable = false)
+    @Column(name = "end_date", nullable = false)
     private LocalDate endDate;
 
-    @Column(precision = 15, scale = 2)
-    private BigDecimal budget;
-
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 20)
-    @Builder.Default
-    private TripStatus status = TripStatus.PLANNED;
-
-    @Column(nullable = false, updatable = false)
+    @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 
-    // 연관관계: Trip 1 ──── N Expense
     @OneToMany(mappedBy = "trip", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     private List<Expense> expenses = new ArrayList<>();
+
+    @OneToMany(mappedBy = "trip", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    private List<Attachment> attachments = new ArrayList<>();
 
     @PrePersist
     protected void onCreate() {

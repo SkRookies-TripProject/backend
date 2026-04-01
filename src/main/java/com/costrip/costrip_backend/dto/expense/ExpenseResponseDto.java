@@ -18,7 +18,6 @@ public class ExpenseResponseDto {
     private Long tripId;
     private LocalDate expenseDate;
     private ExpenseCategory category;
-    private PaymentMethod paymentMethod;
     private BigDecimal amount;
     private String memo;
     private LocalDateTime createdAt;
@@ -30,7 +29,6 @@ public class ExpenseResponseDto {
                 .tripId(expense.getTrip().getId())
                 .expenseDate(expense.getExpenseDate())
                 .category(expense.getCategory())
-                .paymentMethod(expense.getPaymentMethod())
                 .amount(expense.getAmount())
                 .memo(expense.getMemo())
                 .createdAt(expense.getCreatedAt())

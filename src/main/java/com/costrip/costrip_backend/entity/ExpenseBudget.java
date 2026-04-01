@@ -1,46 +1,33 @@
 package com.costrip.costrip_backend.entity;
 
-import com.costrip.costrip_backend.entity.enums.ExpenseCategory;
-import com.costrip.costrip_backend.entity.enums.PaymentMethod;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 
 @Entity
-@Table(name = "expenses")
+@Table(name = "expense_budget")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Expense {
+public class ExpenseBudget {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // 🔥 Trip FK (정상)
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "trip_id", nullable = false)
     private Trip trip;
 
-    @Column(name = "expense_date", nullable = false)
-    private LocalDate expenseDate;
-
-    @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 50)
-    private ExpenseCategory category;
+    private String category;
 
-    @Column(nullable = false, precision = 12, scale = 2)
-    private BigDecimal amount;
-
-    @Column(length = 500)
-    private String memo;
+    @Column(name = "budget_amount", nullable = false, precision = 12, scale = 2)
+    private BigDecimal budgetAmount;
 
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;

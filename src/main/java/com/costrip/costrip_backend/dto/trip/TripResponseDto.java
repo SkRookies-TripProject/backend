@@ -18,11 +18,10 @@ public class TripResponseDto {
     private String country;
     private LocalDate startDate;
     private LocalDate endDate;
-    private BigDecimal budget;
-    private TripStatus status;
     private LocalDateTime createdAt;
 
-    // 예산 현황 요약 (목록 조회 시 편의 제공)
+    // 🔥 예산 요약 (ExpenseBudget 기반)
+    private BigDecimal totalBudget;
     private BigDecimal totalSpent;
     private BigDecimal remainingBudget;
 
@@ -33,15 +32,17 @@ public class TripResponseDto {
                 .country(trip.getCountry())
                 .startDate(trip.getStartDate())
                 .endDate(trip.getEndDate())
-                .budget(trip.getBudget())
-                .status(trip.getStatus())
                 .createdAt(trip.getCreatedAt())
                 .build();
     }
 
-    public static TripResponseDto from(Trip trip, BigDecimal totalSpent) {
-        BigDecimal remaining = (trip.getBudget() != null && totalSpent != null)
-                ? trip.getBudget().subtract(totalSpent)
+    public static TripResponseDto from(
+            Trip trip,
+            BigDecimal totalBudget,
+            BigDecimal totalSpent
+    ) {
+        BigDecimal remaining = (totalBudget != null && totalSpent != null)
+                ? totalBudget.subtract(totalSpent)
                 : null;
 
         return TripResponseDto.builder()
@@ -50,9 +51,8 @@ public class TripResponseDto {
                 .country(trip.getCountry())
                 .startDate(trip.getStartDate())
                 .endDate(trip.getEndDate())
-                .budget(trip.getBudget())
-                .status(trip.getStatus())
                 .createdAt(trip.getCreatedAt())
+                .totalBudget(totalBudget)
                 .totalSpent(totalSpent)
                 .remainingBudget(remaining)
                 .build();

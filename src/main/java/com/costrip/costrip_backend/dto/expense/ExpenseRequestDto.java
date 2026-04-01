@@ -21,9 +21,6 @@ public class ExpenseRequestDto {
     @NotNull(message = "카테고리는 필수입니다.")
     private ExpenseCategory category;
 
-    @NotNull(message = "결제 수단은 필수입니다.")
-    private PaymentMethod paymentMethod;
-
     @NotNull(message = "금액은 필수입니다.")
     @DecimalMin(value = "0.01", message = "금액은 0원 초과이어야 합니다.")
     private BigDecimal amount;

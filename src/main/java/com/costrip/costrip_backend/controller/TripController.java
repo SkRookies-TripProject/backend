@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -24,14 +25,15 @@ public class TripController {
 
     /**
      * GET /api/trips
-     * 여행 목록 조회 (상태별 필터: PLANNED / IN_PROGRESS / COMPLETED)
+     * 여행 목록 조회
      */
     @GetMapping
     public ResponseEntity<ApiResponse<List<TripResponseDto>>> getTrips(
-            @AuthenticationPrincipal User user,
-            @RequestParam(required = false) TripStatus status) {
+            @AuthenticationPrincipal UserDetails userDetails) {
 
-        List<TripResponseDto> trips = tripService.getTripsByUser(user.getName(), status);
+        List<TripResponseDto> trips =
+                tripService.getTripsByUser(userDetails.getUsername());
+
         return ResponseEntity
                 .ok(ApiResponse.success("여행 목록 조회 성공", trips));
     }
@@ -42,10 +44,12 @@ public class TripController {
      */
     @PostMapping
     public ResponseEntity<ApiResponse<TripResponseDto>> createTrip(
-            @AuthenticationPrincipal User user,
+            @AuthenticationPrincipal UserDetails userDetails,
             @Valid @RequestBody TripRequestDto requestDto) {
 
-        TripResponseDto responseDto = tripService.createTrip(user.getName(), requestDto);
+        TripResponseDto responseDto =
+                tripService.createTrip(userDetails.getUsername(), requestDto);
+
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(ApiResponse.success("여행이 등록되었습니다.", responseDto));
@@ -57,39 +61,43 @@ public class TripController {
      */
     @GetMapping("/{tripId}")
     public ResponseEntity<ApiResponse<TripResponseDto>> getTrip(
-            @AuthenticationPrincipal User user,
+            @AuthenticationPrincipal UserDetails userDetails,
             @PathVariable Long tripId) {
 
-        TripResponseDto responseDto = tripService.getTripById(user.getName(), tripId);
+        TripResponseDto responseDto =
+                tripService.getTripById(userDetails.getUsername(), tripId);
+
         return ResponseEntity
                 .ok(ApiResponse.success("여행 상세 조회 성공", responseDto));
     }
 
     /**
      * PUT /api/trips/{tripId}
-     * 여행 수정 (본인 여행만 가능)
+     * 여행 수정
      */
     @PutMapping("/{tripId}")
     public ResponseEntity<ApiResponse<TripResponseDto>> updateTrip(
-            @AuthenticationPrincipal User user,
+            @AuthenticationPrincipal UserDetails userDetails,
             @PathVariable Long tripId,
             @Valid @RequestBody TripRequestDto requestDto) {
 
-        TripResponseDto responseDto = tripService.updateTrip(user.getName(), tripId, requestDto);
+        TripResponseDto responseDto =
+                tripService.updateTrip(userDetails.getUsername(), tripId, requestDto);
+
         return ResponseEntity
                 .ok(ApiResponse.success("여행이 수정되었습니다.", responseDto));
     }
 
     /**
      * DELETE /api/trips/{tripId}
-     * 여행 삭제 (본인 여행만 가능)
      */
     @DeleteMapping("/{tripId}")
     public ResponseEntity<ApiResponse<Void>> deleteTrip(
-            @AuthenticationPrincipal User user,
+            @AuthenticationPrincipal UserDetails userDetails,
             @PathVariable Long tripId) {
 
-        tripService.deleteTrip(user.getName(), tripId);
+        tripService.deleteTrip(userDetails.getUsername(), tripId);
+
         return ResponseEntity
                 .ok(ApiResponse.success("여행이 삭제되었습니다.", null));
     }

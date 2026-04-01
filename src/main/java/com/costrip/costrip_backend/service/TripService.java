@@ -5,6 +5,8 @@ import com.costrip.costrip_backend.dto.trip.TripResponseDto;
 import com.costrip.costrip_backend.entity.Trip;
 import com.costrip.costrip_backend.entity.User;
 import com.costrip.costrip_backend.entity.enums.TripStatus;
+import com.costrip.costrip_backend.repository.ExpenseBudgetRepository;
+import com.costrip.costrip_backend.repository.ExpenseRepository;
 import com.costrip.costrip_backend.repository.TripRepository;
 import com.costrip.costrip_backend.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -23,43 +25,56 @@ public class TripService {
 
     private final TripRepository tripRepository;
     private final UserRepository userRepository;
+    private final ExpenseRepository expenseRepository;
+    private final ExpenseBudgetRepository expenseBudgetRepository;
 
     /**
      * 여행 목록 조회
-     * - status 파라미터가 있으면 상태별 필터링
      */
-    public List<TripResponseDto> getTripsByUser(String email, TripStatus status) {
+    public List<TripResponseDto> getTripsByUser(String email) {
+
         User user = findUserByEmail(email);
 
-        List<Trip> trips = (status != null)
-                ? tripRepository.findByUserAndStatusOrderByCreatedAtDesc(user, status)
-                : tripRepository.findByUserOrderByCreatedAtDesc(user);
+        List<Trip> trips =
+                tripRepository.findByUserIdOrderByCreatedAtDesc(user.getId());
 
         return trips.stream()
                 .map(trip -> {
-                    BigDecimal totalSpent = tripRepository.sumExpenseAmountByTripId(trip.getId());
-                    return TripResponseDto.from(trip, totalSpent);
+
+                    BigDecimal totalSpent =
+                            expenseRepository.sumAmountByTrip(trip.getId());
+
+                    BigDecimal totalBudget =
+                            expenseBudgetRepository.sumBudgetByTripId(trip.getId());
+
+                    return TripResponseDto.from(trip, totalBudget, totalSpent);
                 })
-                .collect(Collectors.toList());
+                .toList();
     }
 
     /**
      * 여행 상세 조회
-     * - 본인 여행인지 확인 포함
      */
     public TripResponseDto getTripById(String email, Long tripId) {
+
         User user = findUserByEmail(email);
-        Trip trip = findTripByIdAndUser(tripId, user);
-        BigDecimal totalSpent = tripRepository.sumExpenseAmountByTripId(trip.getId());
-        return TripResponseDto.from(trip, totalSpent);
+        Trip trip = findTripByIdAndUserId(tripId, user.getId());
+
+        BigDecimal totalSpent =
+                expenseRepository.sumAmountByTrip(trip.getId());
+
+        BigDecimal totalBudget =
+                expenseBudgetRepository.sumBudgetByTripId(trip.getId());
+
+        return TripResponseDto.from(trip, totalBudget, totalSpent);
     }
 
     /**
      * 여행 등록
-     * - 종료일이 시작일 이전이면 예외
      */
     @Transactional
     public TripResponseDto createTrip(String email, TripRequestDto dto) {
+
         User user = findUserByEmail(email);
         validateDateRange(dto.getStartDate(), dto.getEndDate());
 
@@ -69,56 +84,53 @@ public class TripService {
                 .country(dto.getCountry())
                 .startDate(dto.getStartDate())
                 .endDate(dto.getEndDate())
-                .budget(dto.getBudget())
-                .status(dto.getStatus() != null ? dto.getStatus() : TripStatus.PLANNED)
                 .build();
 
         tripRepository.save(trip);
+
         return TripResponseDto.from(trip);
     }
 
     /**
      * 여행 수정
-     * - 본인 여행만 수정 가능
      */
     @Transactional
     public TripResponseDto updateTrip(String email, Long tripId, TripRequestDto dto) {
+
         User user = findUserByEmail(email);
-        Trip trip = findTripByIdAndUser(tripId, user);
+        Trip trip = findTripByIdAndUserId(tripId, user.getId());
+
         validateDateRange(dto.getStartDate(), dto.getEndDate());
 
         trip.setTitle(dto.getTitle());
         trip.setCountry(dto.getCountry());
         trip.setStartDate(dto.getStartDate());
         trip.setEndDate(dto.getEndDate());
-        trip.setBudget(dto.getBudget());
-        if (dto.getStatus() != null) {
-            trip.setStatus(dto.getStatus());
-        }
 
         return TripResponseDto.from(trip);
     }
 
     /**
      * 여행 삭제
-     * - 본인 여행만 삭제 가능 (CascadeType.ALL로 지출도 함께 삭제됨)
      */
     @Transactional
     public void deleteTrip(String email, Long tripId) {
+
         User user = findUserByEmail(email);
-        Trip trip = findTripByIdAndUser(tripId, user);
+        Trip trip = findTripByIdAndUserId(tripId, user.getId());
+
         tripRepository.delete(trip);
     }
 
-    // ── 내부 헬퍼 ──────────────────────────────────────────────────────────────
+    // ── 헬퍼 ─────────────────────────
 
     private User findUserByEmail(String email) {
         return userRepository.findByEmail(email)
                 .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다: " + email));
     }
 
-    private Trip findTripByIdAndUser(Long tripId, User user) {
-        return tripRepository.findByIdAndUser(tripId, user)
+    private Trip findTripByIdAndUserId(Long tripId, Long userId) {
+        return tripRepository.findByIdAndUserId(tripId, userId)
                 .orElseThrow(() -> new IllegalArgumentException("여행을 찾을 수 없거나 접근 권한이 없습니다."));
     }
 

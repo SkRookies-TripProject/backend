@@ -37,37 +37,37 @@ public class ExpenseService {
             String sort) {
 
         User user = findUserByEmail(email);
-        Trip trip = findTripByIdAndUser(tripId, user);
+        findTripByIdAndUserId(tripId, user.getId());
 
         List<Expense> expenses;
 
-        // 필터 조합에 따라 Repository 메서드 선택
         boolean hasCategory  = category != null;
         boolean hasDateRange = startDate != null && endDate != null;
 
-        if (hasCategory && hasDateRange) {
+        if ("amount".equals(sort)) {
+            expenses = expenseRepository.findByTripIdOrderByAmountDesc(tripId);
+
+        } else if (hasCategory && hasDateRange) {
             expenses = expenseRepository
-                    .findByTripAndCategoryAndExpenseDateBetweenOrderByExpenseDateDesc(
-                            trip, category, startDate, endDate);
+                    .findByTripIdAndCategoryAndExpenseDateBetweenOrderByExpenseDateDesc(
+                            tripId, category, startDate, endDate);
+
         } else if (hasCategory) {
             expenses = expenseRepository
-                    .findByTripAndCategoryOrderByExpenseDateDesc(trip, category);
+                    .findByTripIdAndCategoryOrderByExpenseDateDesc(tripId, category);
+
         } else if (hasDateRange) {
             expenses = expenseRepository
-                    .findByTripAndExpenseDateBetweenOrderByExpenseDateDesc(
-                            trip, startDate, endDate);
-        } else {
-            expenses = expenseRepository.findByTripOrderByExpenseDateDesc(trip);
-        }
+                    .findByTripIdAndExpenseDateBetweenOrderByExpenseDateDesc(
+                            tripId, startDate, endDate);
 
-        // 금액순 정렬 요청 시 재정렬
-        if ("amount".equals(sort)) {
-            expenses = expenseRepository.findByTripOrderByAmountDesc(trip);
+        } else {
+            expenses = expenseRepository.findByTripIdOrderByExpenseDateDesc(tripId);
         }
 
         return expenses.stream()
                 .map(ExpenseResponseDto::from)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     /**
@@ -76,15 +76,16 @@ public class ExpenseService {
      */
     @Transactional
     public ExpenseResponseDto createExpense(String email, Long tripId, ExpenseRequestDto dto) {
+
         User user = findUserByEmail(email);
-        Trip trip = findTripByIdAndUser(tripId, user);
+        Trip trip = findTripByIdAndUserId(tripId, user.getId());
+
         validateExpenseDateInTripRange(dto.getExpenseDate(), trip);
 
         Expense expense = Expense.builder()
                 .trip(trip)
                 .expenseDate(dto.getExpenseDate())
                 .category(dto.getCategory())
-                .paymentMethod(dto.getPaymentMethod())
                 .amount(dto.getAmount())
                 .memo(dto.getMemo())
                 .build();
@@ -99,12 +100,13 @@ public class ExpenseService {
      */
     @Transactional
     public ExpenseResponseDto updateExpense(String email, Long expenseId, ExpenseRequestDto dto) {
+
         Expense expense = findExpenseByIdAndUser(expenseId, email);
+
         validateExpenseDateInTripRange(dto.getExpenseDate(), expense.getTrip());
 
         expense.setExpenseDate(dto.getExpenseDate());
         expense.setCategory(dto.getCategory());
-        expense.setPaymentMethod(dto.getPaymentMethod());
         expense.setAmount(dto.getAmount());
         expense.setMemo(dto.getMemo());
 
@@ -128,8 +130,8 @@ public class ExpenseService {
                 .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다: " + email));
     }
 
-    private Trip findTripByIdAndUser(Long tripId, User user) {
-        return tripRepository.findByIdAndUser(tripId, user)
+    private Trip findTripByIdAndUserId(Long tripId, Long userId) {
+        return tripRepository.findByIdAndUserId(tripId, userId)
                 .orElseThrow(() -> new IllegalArgumentException("여행을 찾을 수 없거나 접근 권한이 없습니다."));
     }
 
@@ -140,9 +142,11 @@ public class ExpenseService {
 
     private void validateExpenseDateInTripRange(LocalDate expenseDate, Trip trip) {
         if (expenseDate == null) return;
+
         if (trip.getStartDate() != null && expenseDate.isBefore(trip.getStartDate())) {
             throw new IllegalArgumentException("지출일이 여행 시작일보다 이전입니다.");
         }
+
         if (trip.getEndDate() != null && expenseDate.isAfter(trip.getEndDate())) {
             throw new IllegalArgumentException("지출일이 여행 종료일보다 이후입니다.");
         }
