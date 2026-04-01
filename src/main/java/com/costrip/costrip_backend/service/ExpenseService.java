@@ -1,5 +1,6 @@
 package com.costrip.costrip_backend.service;
 
+import com.costrip.costrip_backend.dto.expense.ExpenseListResponseDto;
 import com.costrip.costrip_backend.dto.expense.ExpenseRequestDto;
 import com.costrip.costrip_backend.dto.expense.ExpenseResponseDto;
 import com.costrip.costrip_backend.entity.Expense;
@@ -13,7 +14,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -44,10 +47,8 @@ public class ExpenseService {
         boolean hasCategory  = category != null;
         boolean hasDateRange = startDate != null && endDate != null;
 
-        if ("amount".equals(sort)) {
-            expenses = expenseRepository.findByTripIdOrderByAmountDesc(tripId);
-
-        } else if (hasCategory && hasDateRange) {
+        // 1. 필터만 적용 (정렬 X)
+        if (hasCategory && hasDateRange) {
             expenses = expenseRepository
                     .findByTripIdAndCategoryAndExpenseDateBetweenOrderByExpenseDateDesc(
                             tripId, category, startDate, endDate);
@@ -65,10 +66,54 @@ public class ExpenseService {
             expenses = expenseRepository.findByTripIdOrderByExpenseDateDesc(tripId);
         }
 
+        // 2. 정렬 (4가지 전부 지원)
+        if (sort != null) {
+            switch (sort) {
+                case "amountDesc":
+                    expenses.sort(Comparator.comparing(Expense::getAmount).reversed());
+                    break;
+                case "amountAsc":
+                    expenses.sort(Comparator.comparing(Expense::getAmount));
+                    break;
+                case "dateAsc":
+                    expenses.sort(Comparator.comparing(Expense::getExpenseDate));
+                    break;
+                case "dateDesc":
+                    expenses.sort(Comparator.comparing(Expense::getExpenseDate).reversed());
+                    break;
+            }
+        }
+
         return expenses.stream()
                 .map(ExpenseResponseDto::from)
                 .toList();
     }
+
+    public ExpenseListResponseDto getExpensesWithTotal(
+            String email, Long tripId,
+            ExpenseCategory category,
+            LocalDate startDate, LocalDate endDate,
+            String sort) {
+
+        //  사용자 + 여행 검증
+        User user = findUserByEmail(email);
+        findTripByIdAndUserId(tripId, user.getId());
+
+        //  리스트 조회
+        List<ExpenseResponseDto> expenses =
+                getExpenses(email,tripId, category, startDate, endDate, sort);
+
+        //  총 지출 금액
+        BigDecimal totalAmount =
+                expenseRepository.sumAmountByTrip(tripId);
+
+        //  응답 DTO
+        return ExpenseListResponseDto.builder()
+                .expenses(expenses)
+                .totalAmount(totalAmount)
+                .build();
+    }
+
 
     /**
      * 지출 등록
