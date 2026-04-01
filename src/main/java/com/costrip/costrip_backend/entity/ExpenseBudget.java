@@ -7,43 +7,27 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "expense_budget")
-@Getter
+@Table(name = "trip_budgets")
+@Getter @NoArgsConstructor
 @Setter
-@NoArgsConstructor
 @AllArgsConstructor
 @Builder
 public class ExpenseBudget {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "trip_id", nullable = false)
+    @JoinColumn(name = "trip_id")
     private Trip trip;
 
-    @Column(nullable = false, length = 50)
-    private String category;
+    private String category;  // "식비", "쇼핑" 등
 
-    @Column(name = "budget_amount", nullable = false, precision = 12, scale = 2)
-    private BigDecimal budgetAmount;
+    private Long amount;
 
-    @Column(name = "created_at", updatable = false)
-    private LocalDateTime createdAt;
-
-    @Column(name = "updated_at")
-    private LocalDateTime updatedAt;
-
-    @PrePersist
-    protected void onCreate() {
-        LocalDateTime now = LocalDateTime.now();
-        this.createdAt = now;
-        this.updatedAt = now;
-    }
-
-    @PreUpdate
-    protected void onUpdate() {
-        this.updatedAt = LocalDateTime.now();
+    public ExpenseBudget(Trip trip, String category, Long amount) {
+        this.trip     = trip;
+        this.category = category;
+        this.amount   = amount;
     }
 }

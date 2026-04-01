@@ -50,6 +50,20 @@ CREATE TABLE expenses (
        ON DELETE CASCADE
 );
 
+-- =========================
+-- EXPENSES_BUDGET
+-- =========================
+CREATE TABLE trip_budgets (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    trip_id BIGINT NOT NULL,
+    category VARCHAR(255),
+    amount BIGINT,
+
+    CONSTRAINT fk_trip_budget_trip
+    FOREIGN KEY (trip_id)
+    REFERENCES trips(id)
+    ON DELETE CASCADE
+) ENGINE=InnoDB;
 
 -- =========================
 -- ATTACHMENTS
