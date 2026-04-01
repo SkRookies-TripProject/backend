@@ -22,9 +22,6 @@ public class TripRequestDto {
     @Size(max = 100, message = "국가명은 100자 이하이어야 합니다.")
     private String country;
 
-    @Size(max = 100, message = "도시명은 100자 이하이어야 합니다.")
-    private String city;
-
     @NotNull(message = "시작일은 필수입니다.")
     private LocalDate startDate;
 

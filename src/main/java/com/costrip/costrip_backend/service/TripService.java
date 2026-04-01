@@ -67,7 +67,6 @@ public class TripService {
                 .user(user)
                 .title(dto.getTitle())
                 .country(dto.getCountry())
-                .city(dto.getCity())
                 .startDate(dto.getStartDate())
                 .endDate(dto.getEndDate())
                 .budget(dto.getBudget())
@@ -90,7 +89,6 @@ public class TripService {
 
         trip.setTitle(dto.getTitle());
         trip.setCountry(dto.getCountry());
-        trip.setCity(dto.getCity());
         trip.setStartDate(dto.getStartDate());
         trip.setEndDate(dto.getEndDate());
         trip.setBudget(dto.getBudget());

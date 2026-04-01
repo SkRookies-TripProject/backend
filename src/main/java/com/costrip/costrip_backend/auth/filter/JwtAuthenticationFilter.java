@@ -1,8 +1,7 @@
 package com.costrip.costrip_backend.auth.filter;
 
-import com.costrip.costrip_backend.auth.userinfo.UserInfoUserDetailsService;
 import com.costrip.costrip_backend.auth.jwt.JwtService;
-import com.costrip.costrip_backend.auth.userinfo.UserInfoUserDetailsService;
+import com.costrip.costrip_backend.service.CustomUserDetailsService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -44,7 +43,7 @@ import java.io.IOException;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtService jwtService;
-    private final UserInfoUserDetailsService userDetailsService;
+    private final CustomUserDetailsService userDetailsService;
 
     // 필터에서 발생한 예외를 @RestControllerAdvice로 위임하기 위한 리졸버
     // @Qualifier: Spring이 등록한 복합 리졸버(handlerExceptionResolver) 명시적 지정

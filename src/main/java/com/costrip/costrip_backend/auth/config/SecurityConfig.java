@@ -1,13 +1,11 @@
 package com.costrip.costrip_backend.auth.config;
 
 import com.costrip.costrip_backend.auth.filter.JwtAuthenticationFilter;
-import com.costrip.costrip_backend.auth.userinfo.UserInfoUserDetailsService;
+import com.costrip.costrip_backend.service.CustomUserDetailsService;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
@@ -18,14 +16,10 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-
-import static org.springframework.security.config.Customizer.withDefaults;
 
 @Configuration
 @EnableWebSecurity
@@ -35,6 +29,7 @@ public class SecurityConfig {
     private final PasswordEncoder passwordEncoder;
     // JwtAuthenticationFilter: 요청마다 JWT 토큰을 검증하는 커스텀 필터
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final CustomUserDetailsService customUserDetailsService;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -46,7 +41,7 @@ public class SecurityConfig {
                 // FilterRegistrationBean보다 먼저 실행되는 문제를 해결
                 .cors(Customizer.withDefaults())
                 .authorizeHttpRequests(auth -> {
-                    auth.requestMatchers("/api/employees/welcome","/userinfos/new", "/userinfos/login").permitAll()
+                    auth.requestMatchers("/api/auth/**").permitAll()
                             .requestMatchers("/api/**").authenticated();
                 })
                 .sessionManagement(session ->
@@ -82,8 +77,8 @@ public class SecurityConfig {
      * UserInfoUserDetailsService: 이메일로 DB를 조회하여 UserDetails 반환
      */
     @Bean
-    public UserDetailsService userDetailsService() {
-        return new UserInfoUserDetailsService();
+    public UserDetailsService userDetailsService(CustomUserDetailsService service) {
+        return service;
     }
 
     /**
@@ -94,7 +89,7 @@ public class SecurityConfig {
     @Bean
     public AuthenticationProvider authenticationProvider(){
         DaoAuthenticationProvider authenticationProvider = new DaoAuthenticationProvider();
-        authenticationProvider.setUserDetailsService(userDetailsService());
+        authenticationProvider.setUserDetailsService(customUserDetailsService);
         authenticationProvider.setPasswordEncoder(passwordEncoder);
         return authenticationProvider;
     }

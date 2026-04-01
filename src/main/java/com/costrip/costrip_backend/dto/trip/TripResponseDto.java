@@ -16,7 +16,6 @@ public class TripResponseDto {
     private Long id;
     private String title;
     private String country;
-    private String city;
     private LocalDate startDate;
     private LocalDate endDate;
     private BigDecimal budget;
@@ -32,7 +31,6 @@ public class TripResponseDto {
                 .id(trip.getId())
                 .title(trip.getTitle())
                 .country(trip.getCountry())
-                .city(trip.getCity())
                 .startDate(trip.getStartDate())
                 .endDate(trip.getEndDate())
                 .budget(trip.getBudget())
@@ -50,7 +48,6 @@ public class TripResponseDto {
                 .id(trip.getId())
                 .title(trip.getTitle())
                 .country(trip.getCountry())
-                .city(trip.getCity())
                 .startDate(trip.getStartDate())
                 .endDate(trip.getEndDate())
                 .budget(trip.getBudget())
