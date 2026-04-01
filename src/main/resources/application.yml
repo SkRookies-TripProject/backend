@@ -1,25 +1,31 @@
 spring:
-  flyway:
-    enabled: true
-    locations: classpath:db/migration
-    baseline-on-migrate: true
-
   application:
     name: costrip-backend
 
   datasource:
-    url: jdbc:mariadb://25.2.109.64:3306/4team_db
-    username: user
-    password: user
+    url: jdbc:mariadb://${DB_HOST:25.2.109.64}:${DB_PORT:3306}/${DB_DATABASE:4team_db}
+    username: ${DB_USERNAME:user}
+    password: ${DB_PASSWORD:user}
     driver-class-name: org.mariadb.jdbc.Driver
 
   jpa:
     hibernate:
-      ddl-auto: none
+      ddl-auto: none   # Flyway 쓰니까 무조건 none
     show-sql: true
     properties:
       hibernate:
         format_sql: true
+        default_batch_fetch_size: 100
+        dialect: org.hibernate.dialect.MariaDBDialect
+
+  flyway:
+    enabled: true
+    locations: classpath:db/migration   # 파일이 아니라 폴더!
+    baseline-on-migrate: true
 
 server:
   port: 8080
+
+jwt:
+  secret: ${JWT_SECRET:5367566B59703373367639792F423F4528482B4D6251655468576D5A71347437}
+  expiration: ${JWT_EXPIRATION:3600}

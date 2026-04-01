@@ -34,7 +34,8 @@ import java.util.function.Function;
 @Component
 public class JwtService {
 
-    // 시크릿 키: application.properties의 jwt.secret 값 주입
+    // 시크릿 키: application.properties의 jwt.secret
+    // 값 주입
     // 운영 환경에서는 환경변수 JWT_SECRET으로 외부 주입 권장 (코드/설정 파일 노출 방지)
     @Value("${jwt.secret}")
     private String secret;
