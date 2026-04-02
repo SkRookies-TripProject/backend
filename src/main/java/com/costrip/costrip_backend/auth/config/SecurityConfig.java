@@ -6,6 +6,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
@@ -41,7 +42,12 @@ public class SecurityConfig {
                 // FilterRegistrationBean보다 먼저 실행되는 문제를 해결
                 .cors(Customizer.withDefaults())
                 .authorizeHttpRequests(auth -> {
-                    auth.requestMatchers("/api/auth/**").permitAll()
+
+                    // 브라우저가 Authorization 헤더 포함 요청 전에 보내는 preflight(OPTIONS)를 먼저 허용한다.
+                    auth.requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+
+
+                            .requestMatchers("/api/auth/**").permitAll()
                             .requestMatchers("/api/**").authenticated();
                 })
                 .sessionManagement(session ->
