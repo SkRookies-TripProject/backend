@@ -1,6 +1,7 @@
 package com.costrip.costrip_backend.controller;
 
 import com.costrip.costrip_backend.dto.common.ApiResponse;
+import com.costrip.costrip_backend.dto.expense.ExpenseListResponseDto;
 import com.costrip.costrip_backend.dto.expense.ExpenseRequestDto;
 import com.costrip.costrip_backend.dto.expense.ExpenseResponseDto;
 import com.costrip.costrip_backend.entity.enums.ExpenseCategory;
@@ -25,7 +26,7 @@ public class ExpenseController {
     private final ExpenseService expenseService;
 
     @GetMapping("/trips/{tripId}/expenses")
-    public ResponseEntity<ApiResponse<List<ExpenseResponseDto>>> getExpenses(
+    public  ResponseEntity<ApiResponse<ExpenseListResponseDto>> getExpenses(
             @AuthenticationPrincipal UserDetails userDetails,
             @PathVariable Long tripId,
             @RequestParam(required = false) ExpenseCategory category,
@@ -33,11 +34,11 @@ public class ExpenseController {
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
             @RequestParam(defaultValue = "latest") String sort) {
 
-        List<ExpenseResponseDto> expenses = expenseService.getExpenses(
+        ExpenseListResponseDto response = expenseService.getExpensesWithTotal(
                 userDetails.getUsername(), tripId, category, startDate, endDate, sort);
 
         return ResponseEntity
-                .ok(ApiResponse.success("지출 목록 조회 성공", expenses));
+                .ok(ApiResponse.success("지출 목록 조회 성공", response));
     }
 
     @PostMapping("/trips/{tripId}/expenses")
