@@ -15,6 +15,9 @@ import java.util.Map;
 @AllArgsConstructor
 public class StatisticsResponseDto {
 
+    //전체 지출 합계
+    private BigDecimal totalSpent;
+
     // 카테고리별 소비 비율 (카테고리 → 금액)
     private Map<ExpenseCategory, BigDecimal> categoryAmounts;
 
