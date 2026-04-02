@@ -84,6 +84,16 @@ public class DefaultExceptionAdvice {
         return new ResponseEntity<>(errorObject, HttpStatus.FORBIDDEN);
     }
 
+    @ExceptionHandler(IllegalArgumentException.class)
+    protected ResponseEntity<ErrorObject> handleIllegalArgumentException(IllegalArgumentException e) {
+        ErrorObject errorObject = new ErrorObject();
+        errorObject.setStatusCode(HttpStatus.BAD_REQUEST.value());
+        errorObject.setMessage(e.getMessage());
+
+        log.warn("Invalid request: {}", e.getMessage());
+
+        return new ResponseEntity<>(errorObject, HttpStatus.BAD_REQUEST);
+    }
 
     @ExceptionHandler(RuntimeException.class)
     protected ResponseEntity<ErrorObject> handleException(RuntimeException e) {
