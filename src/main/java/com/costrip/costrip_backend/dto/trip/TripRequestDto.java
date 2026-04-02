@@ -1,5 +1,6 @@
 package com.costrip.costrip_backend.dto.trip;
 
+import com.costrip.costrip_backend.dto.expense.ExpenseBudgetRequestDto;
 import com.costrip.costrip_backend.entity.enums.TripStatus;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -9,6 +10,7 @@ import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.List;
 
 @Getter
 @NoArgsConstructor
@@ -27,4 +29,6 @@ public class TripRequestDto {
 
     @NotNull(message = "종료일은 필수입니다.")
     private LocalDate endDate;
+
+    private List<ExpenseBudgetRequestDto> budgets;
 }

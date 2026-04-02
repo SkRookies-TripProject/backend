@@ -1,7 +1,11 @@
 package com.costrip.costrip_backend.service;
 
+import com.costrip.costrip_backend.dto.expense.ExpenseBudgetRequestDto;
+import com.costrip.costrip_backend.dto.expense.ExpenseRequestDto;
 import com.costrip.costrip_backend.dto.trip.TripRequestDto;
 import com.costrip.costrip_backend.dto.trip.TripResponseDto;
+import com.costrip.costrip_backend.entity.Expense;
+import com.costrip.costrip_backend.entity.ExpenseBudget;
 import com.costrip.costrip_backend.entity.Trip;
 import com.costrip.costrip_backend.entity.User;
 import com.costrip.costrip_backend.entity.enums.TripStatus;
@@ -87,6 +91,15 @@ public class TripService {
                 .build();
 
         tripRepository.save(trip);
+
+        //
+        if (dto.getBudgets() != null) {
+            List<ExpenseBudget> budgets = dto.getBudgets().stream()
+                    .map(b -> new ExpenseBudget(trip, b.getCategory(), b.getAmount()))
+                    .toList();
+
+            expenseBudgetRepository.saveAll(budgets);
+        }
 
         return TripResponseDto.from(trip);
     }

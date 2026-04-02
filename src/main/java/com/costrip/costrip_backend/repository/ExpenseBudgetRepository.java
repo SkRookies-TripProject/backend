@@ -11,6 +11,6 @@ import java.math.BigDecimal;
 @Repository
 public interface ExpenseBudgetRepository extends JpaRepository<ExpenseBudget, Long> {
 
-    @Query("SELECT COALESCE(SUM(b.budgetAmount), 0) FROM ExpenseBudget b WHERE b.trip.id = :tripId")
+    @Query("SELECT COALESCE(SUM(b.amount), 0) FROM ExpenseBudget b WHERE b.trip.id = :tripId")
     BigDecimal sumBudgetByTripId(@Param("tripId") Long tripId);
 }
