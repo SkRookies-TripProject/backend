@@ -2,7 +2,6 @@ package com.costrip.costrip_backend.dto.expense;
 
 import com.costrip.costrip_backend.entity.Expense;
 import com.costrip.costrip_backend.entity.enums.ExpenseCategory;
-import com.costrip.costrip_backend.entity.enums.PaymentMethod;
 import lombok.Builder;
 import lombok.Getter;
 

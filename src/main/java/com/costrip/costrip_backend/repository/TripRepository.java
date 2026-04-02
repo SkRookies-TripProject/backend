@@ -1,8 +1,6 @@
 package com.costrip.costrip_backend.repository;
 
 import com.costrip.costrip_backend.entity.Trip;
-import com.costrip.costrip_backend.entity.User;
-import com.costrip.costrip_backend.entity.enums.TripStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;

@@ -1,7 +1,6 @@
 package com.costrip.costrip_backend.dto.expense;
 
 import com.costrip.costrip_backend.entity.enums.ExpenseCategory;
-import com.costrip.costrip_backend.entity.enums.PaymentMethod;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;

@@ -1,5 +1,7 @@
 package com.costrip.costrip_backend.controller;
 
+import com.costrip.costrip_backend.dto.auth.AdminUserResponseDto;
+import com.costrip.costrip_backend.dto.common.ApiResponse;
 import com.costrip.costrip_backend.entity.User;
 import com.costrip.costrip_backend.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -19,8 +21,10 @@ public class AdminUserController {
      * 전체 사용자 조회
      */
     @GetMapping
-    public ResponseEntity<List<User>> getUsers() {
-        return ResponseEntity.ok(userService.getAllUsers());
+    public ResponseEntity<ApiResponse<List<AdminUserResponseDto>>> getUsers() {
+        return ResponseEntity.ok(
+                ApiResponse.success("전체 사용자 조회 성공", userService.getAllUsers())
+        );
     }
 
     /**
@@ -28,18 +32,25 @@ public class AdminUserController {
      * 예: /api/admin/users/search?keyword=test
      */
     @GetMapping("/search")
-    public ResponseEntity<List<User>> searchUsers(
+    public ResponseEntity<ApiResponse<List<AdminUserResponseDto>>> searchUsers(
             @RequestParam String keyword) {
 
-        return ResponseEntity.ok(userService.searchUsers(keyword));
+        return ResponseEntity.ok(
+                ApiResponse.success("사용자 검색 성공", userService.searchUsers(keyword))
+        );
     }
 
     /**
      * 사용자 삭제
      */
     @DeleteMapping("/{userId}")
-    public ResponseEntity<Void> deleteUser(@PathVariable Long userId) {
+    public ResponseEntity<ApiResponse<Void>> deleteUser(
+            @PathVariable Long userId) {
+
         userService.deleteUser(userId);
-        return ResponseEntity.noContent().build();
+
+        return ResponseEntity.ok(
+                ApiResponse.success("사용자 삭제 성공", null)
+        );
     }
 }

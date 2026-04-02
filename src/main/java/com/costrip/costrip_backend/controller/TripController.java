@@ -3,8 +3,6 @@ package com.costrip.costrip_backend.controller;
 import com.costrip.costrip_backend.dto.common.ApiResponse;
 import com.costrip.costrip_backend.dto.trip.TripRequestDto;
 import com.costrip.costrip_backend.dto.trip.TripResponseDto;
-import com.costrip.costrip_backend.entity.User;
-import com.costrip.costrip_backend.entity.enums.TripStatus;
 import com.costrip.costrip_backend.service.TripService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

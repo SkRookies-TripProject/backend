@@ -1,5 +1,6 @@
 package com.costrip.costrip_backend.service;
 
+import com.costrip.costrip_backend.dto.auth.AdminUserResponseDto;
 import com.costrip.costrip_backend.entity.User;
 import com.costrip.costrip_backend.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -18,16 +19,21 @@ public class UserService {
     /**
      * 전체 사용자 조회
      */
-    public List<User> getAllUsers() {
-        return userRepository.findAll();
+    public List<AdminUserResponseDto> getAllUsers() {
+        return userRepository.findAll().stream()
+                .map(AdminUserResponseDto::from)
+                .toList();
     }
 
     /**
      * 사용자 검색 (이름 또는 이메일)
      */
-    public List<User> searchUsers(String keyword) {
+    public List<AdminUserResponseDto> searchUsers(String keyword) {
         return userRepository
-                .findByNameContainingOrEmailContaining(keyword, keyword);
+                .findByNameContainingOrEmailContaining(keyword, keyword)
+                .stream()
+                .map(AdminUserResponseDto::from)
+                .toList();
     }
 
     /**

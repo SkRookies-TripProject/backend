@@ -1,15 +1,12 @@
 package com.costrip.costrip_backend.entity;
 
 import com.costrip.costrip_backend.entity.enums.ExpenseCategory;
-import com.costrip.costrip_backend.entity.enums.PaymentMethod;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 
 @Entity
 @Table(name = "expenses")

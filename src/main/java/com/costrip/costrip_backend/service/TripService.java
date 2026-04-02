@@ -1,14 +1,10 @@
 package com.costrip.costrip_backend.service;
 
-import com.costrip.costrip_backend.dto.expense.ExpenseBudgetRequestDto;
-import com.costrip.costrip_backend.dto.expense.ExpenseRequestDto;
 import com.costrip.costrip_backend.dto.trip.TripRequestDto;
 import com.costrip.costrip_backend.dto.trip.TripResponseDto;
-import com.costrip.costrip_backend.entity.Expense;
 import com.costrip.costrip_backend.entity.ExpenseBudget;
 import com.costrip.costrip_backend.entity.Trip;
 import com.costrip.costrip_backend.entity.User;
-import com.costrip.costrip_backend.entity.enums.TripStatus;
 import com.costrip.costrip_backend.repository.ExpenseBudgetRepository;
 import com.costrip.costrip_backend.repository.ExpenseRepository;
 import com.costrip.costrip_backend.repository.TripRepository;
@@ -20,7 +16,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor

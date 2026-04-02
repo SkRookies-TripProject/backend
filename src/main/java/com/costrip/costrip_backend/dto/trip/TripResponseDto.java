@@ -1,7 +1,6 @@
 package com.costrip.costrip_backend.dto.trip;
 
 import com.costrip.costrip_backend.entity.Trip;
-import com.costrip.costrip_backend.entity.enums.TripStatus;
 import lombok.Builder;
 import lombok.Getter;
 
