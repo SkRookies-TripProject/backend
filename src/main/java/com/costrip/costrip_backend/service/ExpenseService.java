@@ -36,7 +36,7 @@ public class ExpenseService {
     public List<ExpenseResponseDto> getExpenses(
             String email, Long tripId,
             ExpenseCategory category,
-            LocalDate startDate, LocalDate endDate,
+            LocalDate date,
             String sort) {
 
         User user = findUserByEmail(email);
@@ -44,29 +44,28 @@ public class ExpenseService {
 
         List<Expense> expenses;
 
-        boolean hasCategory  = category != null;
-        boolean hasDateRange = startDate != null && endDate != null;
+        boolean hasCategory = category != null;
+        boolean hasDate     = date != null;
 
-        // 1. 필터만 적용 (정렬 X)
-        if (hasCategory && hasDateRange) {
+        //  1. 필터
+        if (hasCategory && hasDate) {
             expenses = expenseRepository
-                    .findByTripIdAndCategoryAndExpenseDateBetweenOrderByExpenseDateDesc(
-                            tripId, category, startDate, endDate);
+                    .findByTripIdAndCategoryAndExpenseDateOrderByExpenseDateDesc(
+                            tripId, category, date);
 
         } else if (hasCategory) {
             expenses = expenseRepository
                     .findByTripIdAndCategoryOrderByExpenseDateDesc(tripId, category);
 
-        } else if (hasDateRange) {
+        } else if (hasDate) {
             expenses = expenseRepository
-                    .findByTripIdAndExpenseDateBetweenOrderByExpenseDateDesc(
-                            tripId, startDate, endDate);
+                    .findByTripIdAndExpenseDateOrderByExpenseDateDesc(tripId, date);
 
         } else {
             expenses = expenseRepository.findByTripIdOrderByExpenseDateDesc(tripId);
         }
 
-        // 2. 정렬 (4가지 전부 지원)
+        //  2. 정렬
         if (sort != null) {
             switch (sort) {
                 case "amountDesc":
@@ -88,30 +87,16 @@ public class ExpenseService {
                 .map(ExpenseResponseDto::from)
                 .toList();
     }
+    /**
+     * 여행 전체 지출 조회
+     */
+    public BigDecimal getTotalExpenseAmount(String email, Long tripId) {
 
-    public ExpenseListResponseDto getExpensesWithTotal(
-            String email, Long tripId,
-            ExpenseCategory category,
-            LocalDate startDate, LocalDate endDate,
-            String sort) {
-
-        //  사용자 + 여행 검증
+        //  검증
         User user = findUserByEmail(email);
         findTripByIdAndUserId(tripId, user.getId());
 
-        //  리스트 조회
-        List<ExpenseResponseDto> expenses =
-                getExpenses(email,tripId, category, startDate, endDate, sort);
-
-        //  총 지출 금액
-        BigDecimal totalAmount =
-                expenseRepository.sumAmountByTrip(tripId);
-
-        //  응답 DTO
-        return ExpenseListResponseDto.builder()
-                .expenses(expenses)
-                .totalAmount(totalAmount)
-                .build();
+        return expenseRepository.sumAmountByTrip(tripId);
     }
 
 

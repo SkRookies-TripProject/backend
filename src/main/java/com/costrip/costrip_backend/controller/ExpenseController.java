@@ -15,6 +15,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -26,19 +27,24 @@ public class ExpenseController {
     private final ExpenseService expenseService;
 
     @GetMapping("/trips/{tripId}/expenses")
-    public  ResponseEntity<ApiResponse<ExpenseListResponseDto>> getExpenses(
+    public ResponseEntity<ApiResponse<List<ExpenseResponseDto>>> getExpenses(
             @AuthenticationPrincipal UserDetails userDetails,
             @PathVariable Long tripId,
             @RequestParam(required = false) ExpenseCategory category,
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
-            @RequestParam(defaultValue = "latest") String sort) {
+            @RequestParam(required = false)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
+            @RequestParam(defaultValue = "dateDesc") String sort) {
 
-        ExpenseListResponseDto response = expenseService.getExpensesWithTotal(
-                userDetails.getUsername(), tripId, category, startDate, endDate, sort);
+        List<ExpenseResponseDto> expenses = expenseService.getExpenses(
+                userDetails.getUsername(),
+                tripId,
+                category,
+                date,
+                sort
+        );
 
         return ResponseEntity
-                .ok(ApiResponse.success("지출 목록 조회 성공", response));
+                .ok(ApiResponse.success("지출 목록 조회 성공", expenses));
     }
 
     @PostMapping("/trips/{tripId}/expenses")
@@ -53,6 +59,20 @@ public class ExpenseController {
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(ApiResponse.success("지출이 등록되었습니다.", responseDto));
+    }
+
+    @GetMapping("/trips/{tripId}/expenses/total")
+    public ResponseEntity<ApiResponse<BigDecimal>> getTotalExpense(
+            @AuthenticationPrincipal UserDetails userDetails,
+            @PathVariable Long tripId) {
+
+        BigDecimal totalAmount = expenseService.getTotalExpenseAmount(
+                userDetails.getUsername(),
+                tripId
+        );
+
+        return ResponseEntity
+                .ok(ApiResponse.success("총 지출 금액 조회 성공", totalAmount));
     }
 
     @PutMapping("/expenses/{expenseId}")

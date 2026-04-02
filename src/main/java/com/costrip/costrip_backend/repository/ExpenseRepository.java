@@ -15,25 +15,25 @@ import java.util.Optional;
 @Repository
 public interface ExpenseRepository extends JpaRepository<Expense, Long> {
 
-    // 🔹 특정 여행의 지출 전체 조회 (최신순 정렬)
+    // 🔹 특정 여행의 지출 전체 조회 (최신순)
     List<Expense> findByTripIdOrderByExpenseDateDesc(Long tripId);
 
     // 🔹 특정 여행 + 카테고리 필터 (최신순)
     List<Expense> findByTripIdAndCategoryOrderByExpenseDateDesc(
             Long tripId, ExpenseCategory category);
 
-    // 🔹 특정 여행 + 날짜 범위 필터 (최신순)
-    List<Expense> findByTripIdAndExpenseDateBetweenOrderByExpenseDateDesc(
-            Long tripId, LocalDate startDate, LocalDate endDate);
+    // 🔹 특정 여행 + 날짜 단일 조회 (최신순)
+    List<Expense> findByTripIdAndExpenseDateOrderByExpenseDateDesc(
+            Long tripId, LocalDate expenseDate);
 
-    // 🔹 특정 여행 + 카테고리 + 날짜 범위 필터 (최신순)
-    List<Expense> findByTripIdAndCategoryAndExpenseDateBetweenOrderByExpenseDateDesc(
-            Long tripId, ExpenseCategory category, LocalDate startDate, LocalDate endDate);
+    // 🔹 특정 여행 + 카테고리 + 날짜 단일 조회 (최신순)
+    List<Expense> findByTripIdAndCategoryAndExpenseDateOrderByExpenseDateDesc(
+            Long tripId, ExpenseCategory category, LocalDate expenseDate);
 
     // 🔹 특정 여행의 지출 전체 조회 (금액 높은순)
     List<Expense> findByTripIdOrderByAmountDesc(Long tripId);
 
-    // 🔹 지출 단건 조회
+    // 🔹 지출 단건 조회 (보안: 본인 데이터만)
     @Query("SELECT e FROM Expense e JOIN e.trip t JOIN t.user u WHERE e.id = :expenseId AND u.email = :email")
     Optional<Expense> findByIdAndUserEmail(
             @Param("expenseId") Long expenseId,
