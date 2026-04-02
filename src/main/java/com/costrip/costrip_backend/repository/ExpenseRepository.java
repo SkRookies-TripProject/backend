@@ -50,4 +50,8 @@ public interface ExpenseRepository extends JpaRepository<Expense, Long> {
     // 🔹 날짜별 총 지출 금액
     @Query("SELECT e.expenseDate, SUM(e.amount) FROM Expense e WHERE e.trip.id = :tripId GROUP BY e.expenseDate ORDER BY e.expenseDate")
     List<Object[]> sumAmountGroupByDate(@Param("tripId") Long tripId);
+
+    // 모든 총 지출액 (관리자에서 사용)
+    @Query("SELECT COALESCE(SUM(e.amount), 0) FROM Expense e")
+    BigDecimal getTotalAmount();
 }
