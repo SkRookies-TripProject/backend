@@ -62,8 +62,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
 
-        if ("OPTIONS".equals(request.getMethod())) {
+        // 🔥 로그인 요청은 필터 타지 않게 바로 통과
+        if (request.getRequestURI().startsWith("/api/auth")) {
             filterChain.doFilter(request, response);
+            return;
+        }
+
+        if ("OPTIONS".equalsIgnoreCase(request.getMethod())) {
+            filterChain.doFilter(request, response);  // CORS 빈이 알아서 처리
             return;
         }
 

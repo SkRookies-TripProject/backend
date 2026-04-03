@@ -27,6 +27,10 @@ public class JournalEntryService {
     private final TripRepository tripRepository;
     private final UserRepository userRepository;
 
+    /**
+     * 여행별 메모 목록을 조회한다.
+     * recordDate가 있으면 특정 날짜 메모만 조회한다.
+     */
     public List<JournalEntryResponseDto> getJournalEntries(
             String email,
             Long tripId,
@@ -49,11 +53,18 @@ public class JournalEntryService {
                 .toList();
     }
 
+    /**
+     * 메모 단건 상세를 조회한다.
+     */
     public JournalEntryResponseDto getJournalEntry(String email, Long entryId) {
         JournalEntry journalEntry = findJournalEntryByIdAndUser(entryId, email);
         return JournalEntryResponseDto.from(journalEntry);
     }
 
+    /**
+     * 여행에 날짜별 메모를 생성한다.
+     * 메모 날짜가 여행 기간 내에 있는지 검증한다.
+     */
     @Transactional
     public JournalEntryResponseDto createJournalEntry(
             String email,
@@ -75,6 +86,10 @@ public class JournalEntryService {
         return JournalEntryResponseDto.from(savedJournalEntry);
     }
 
+    /**
+     * 기존 메모의 날짜와 내용을 수정한다.
+     * 본인 여행의 메모인지 먼저 확인한다.
+     */
     @Transactional
     public JournalEntryResponseDto updateJournalEntry(
             String email,
@@ -92,6 +107,10 @@ public class JournalEntryService {
         return JournalEntryResponseDto.from(journalEntry);
     }
 
+    /**
+     * 메모를 삭제한다.
+     * 본인 여행의 메모만 삭제할 수 있다.
+     */
     @Transactional
     public void deleteJournalEntry(String email, Long entryId) {
         JournalEntry journalEntry = findJournalEntryByIdAndUser(entryId, email);
@@ -99,48 +118,66 @@ public class JournalEntryService {
         journalEntryRepository.delete(journalEntry);
     }
 
+    /**
+     * 이메일로 사용자 정보를 조회한다.
+     */
     private User findUserByEmail(String email) {
         return userRepository.findByEmail(email)
                 .orElseThrow(() -> new ResourceNotFoundException(
-                        "User not found: " + email,
+                        "사용자를 찾을 수 없습니다: " + email,
                         HttpStatus.NOT_FOUND
                 ));
     }
 
+    /**
+     * 현재 로그인한 사용자의 여행인지 확인하면서 여행을 조회한다.
+     */
     private Trip findTripByIdAndUserId(Long tripId, Long userId) {
         return tripRepository.findByIdAndUserId(tripId, userId)
                 .orElseThrow(() -> new ResourceNotFoundException(
-                        "Trip not found: " + tripId,
+                        "여행을 찾을 수 없습니다: " + tripId,
                         HttpStatus.NOT_FOUND
                 ));
     }
 
+    /**
+     * 현재 로그인한 사용자가 접근 가능한 메모인지 확인하면서 메모를 조회한다.
+     */
     private JournalEntry findJournalEntryByIdAndUser(Long entryId, String email) {
         return journalEntryRepository.findByIdAndUserEmail(entryId, email)
                 .orElseThrow(() -> new ResourceNotFoundException(
-                        "Journal entry not found: " + entryId,
+                        "메모를 찾을 수 없습니다: " + entryId,
                         HttpStatus.NOT_FOUND
                 ));
     }
 
+    /**
+     * 메모가 현재 로그인한 사용자의 여행에 속한 데이터인지 확인한다.
+     */
     private void validateOwner(JournalEntry journalEntry, String email) {
         String ownerEmail = journalEntry.getTrip().getUser().getEmail();
         if (!ownerEmail.equals(email)) {
-            throw new AccessDeniedException("You do not have access to this journal entry.");
+            throw new AccessDeniedException("이 메모에 접근할 권한이 없습니다.");
         }
     }
 
+    /**
+     * 메모 요청값에 대해 여행 기간 내 날짜인지 검증한다.
+     */
     private void validateJournalRequest(Trip trip, JournalEntryRequestDto requestDto) {
         validateRecordDateInTripRange(requestDto.getRecordDate(), trip);
     }
 
+    /**
+     * 메모 날짜가 여행 시작일과 종료일 사이인지 확인한다.
+     */
     private void validateRecordDateInTripRange(LocalDate recordDate, Trip trip) {
         if (trip.getStartDate() != null && recordDate.isBefore(trip.getStartDate())) {
-            throw new IllegalArgumentException("recordDate must be on or after the trip start date.");
+            throw new IllegalArgumentException("기록 날짜는 여행 시작일 이후여야 합니다.");
         }
 
         if (trip.getEndDate() != null && recordDate.isAfter(trip.getEndDate())) {
-            throw new IllegalArgumentException("recordDate must be on or before the trip end date.");
+            throw new IllegalArgumentException("기록 날짜는 여행 종료일 이전이어야 합니다.");
         }
     }
 }

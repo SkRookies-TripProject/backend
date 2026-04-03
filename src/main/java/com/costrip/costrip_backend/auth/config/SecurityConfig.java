@@ -27,42 +27,34 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableMethodSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
+
     private final PasswordEncoder passwordEncoder;
-    // JwtAuthenticationFilter: 요청마다 JWT 토큰을 검증하는 커스텀 필터
+    // 요청마다 JWT 토큰을 검사하는 커스텀 필터
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final CustomUserDetailsService customUserDetailsService;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http.csrf(csrf -> csrf.disable())
-
-
-                // CORS 활성화: CorsConfigurationSource 빈(prod) 또는 MVC CORS 설정(local)을 자동 참조
-                // Spring Security 필터 체인 내에서 preflight(OPTIONS) 요청을 처리하므로
-                // FilterRegistrationBean보다 먼저 실행되는 문제를 해결
+                // CORS 설정을 Security 필터 체인에서도 사용한다.
                 .cors(Customizer.withDefaults())
-                .authorizeHttpRequests(auth -> {
-
-                    // 브라우저가 Authorization 헤더 포함 요청 전에 보내는 preflight(OPTIONS)를 먼저 허용한다.
-                    auth.requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-
-
-                            .requestMatchers("/api/auth/**").permitAll()
-                            .requestMatchers("/api/**").authenticated();
-                })
+                .authorizeHttpRequests(auth -> auth
+                        // 브라우저 preflight 요청은 인증 없이 먼저 통과시킨다.
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                        .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers("/api/**").authenticated()
+                )
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .exceptionHandling(ex -> ex
-                        // authenticationEntryPoint: 토큰 없이 인증 필요한 경로 접근 시 호출 → 401 JSON 반환
-                        // 기본값은 HTML 에러 페이지이므로 REST API용 JSON 응답으로 교체
+                        // 인증 실패 시 HTML 대신 401 JSON을 반환한다.
                         .authenticationEntryPoint((request, response, e) -> {
                             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                             response.setContentType(MediaType.APPLICATION_JSON_VALUE);
                             response.getWriter().write(
                                     "{\"error\":\"Unauthorized(인증실패)\",\"message\":\"" + e.getMessage() + "\"}");
                         })
-                        // accessDeniedHandler: 인증은 됐으나 권한(ROLE) 부족 시 호출 → 403 JSON 반환
-                        // 필터 레벨 AccessDeniedException 처리 (컨트롤러 레벨은 DefaultExceptionAdvice 처리)
+                        // 인증은 되었지만 권한이 없을 때 403 JSON을 반환한다.
                         .accessDeniedHandler((request, response, e) -> {
                             response.setStatus(HttpServletResponse.SC_FORBIDDEN);
                             response.setContentType(MediaType.APPLICATION_JSON_VALUE);
@@ -70,17 +62,15 @@ public class SecurityConfig {
                                     "{\"error\":\"Forbidden(권한없음)\",\"message\":\"" + e.getMessage() + "\"}");
                         })
                 )
-                // DB 기반 인증 프로바이더 등록
+                // DB 기반 인증 프로바이더를 등록한다.
                 .authenticationProvider(authenticationProvider())
-                // JwtAuthenticationFilter를 UsernamePasswordAuthenticationFilter 앞에 삽입
-                // → 폼 로그인 필터보다 먼저 JWT 토큰을 검증하여 SecurityContext에 인증 정보 설정
+                // JWT 필터를 로그인 필터보다 먼저 실행한다.
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
     }
 
     /**
-     * UserDetailsService 빈 등록
-     * UserInfoUserDetailsService: 이메일로 DB를 조회하여 UserDetails 반환
+     * 이메일로 사용자를 조회하는 UserDetailsService를 등록한다.
      */
     @Bean
     public UserDetailsService userDetailsService(CustomUserDetailsService service) {
@@ -88,12 +78,10 @@ public class SecurityConfig {
     }
 
     /**
-     * AuthenticationManager 빈 등록
-     * UserInfoController의 로그인 처리에서 직접 주입받아 사용
-     * AuthenticationConfiguration이 내부적으로 등록된 AuthenticationProvider를 조합하여 반환
+     * 사용자 정보와 비밀번호 인코더를 사용하는 인증 프로바이더를 등록한다.
      */
     @Bean
-    public AuthenticationProvider authenticationProvider(){
+    public AuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider authenticationProvider = new DaoAuthenticationProvider();
         authenticationProvider.setUserDetailsService(customUserDetailsService);
         authenticationProvider.setPasswordEncoder(passwordEncoder);
@@ -101,14 +89,11 @@ public class SecurityConfig {
     }
 
     /**
-     * AuthenticationManager 빈 등록
-     * UserInfoController의 로그인 처리에서 직접 주입받아 사용
-     * AuthenticationConfiguration이 내부적으로 등록된 AuthenticationManager를 반환
+     * AuthenticationManager를 빈으로 등록한다.
      */
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config)
             throws Exception {
         return config.getAuthenticationManager();
     }
-
 }
