@@ -14,6 +14,7 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.validation.FieldError;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -89,6 +90,20 @@ public class DefaultExceptionAdvice {
         log.warn("Invalid request: {}", e.getMessage());
 
         return new ResponseEntity<>(errorObject, HttpStatus.BAD_REQUEST);
+    }
+
+    // 업로드 파일이 제한 크기를 넘으면 413으로 응답한다.
+    @ExceptionHandler(MaxUploadSizeExceededException.class)
+    protected ResponseEntity<ErrorObject> handleMaxUploadSizeExceededException(
+            MaxUploadSizeExceededException e
+    ) {
+        ErrorObject errorObject = new ErrorObject();
+        errorObject.setStatusCode(HttpStatus.PAYLOAD_TOO_LARGE.value());
+        errorObject.setMessage("업로드 가능한 파일 크기를 초과했습니다.");
+
+        log.warn("Upload size exceeded: {}", e.getMessage());
+
+        return new ResponseEntity<>(errorObject, HttpStatus.PAYLOAD_TOO_LARGE);
     }
 
     @ExceptionHandler(RuntimeException.class)
