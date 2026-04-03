@@ -2,7 +2,6 @@ package com.costrip.costrip_backend.service;
 
 import com.costrip.costrip_backend.dto.statistics.BudgetSummaryResponseDto;
 import com.costrip.costrip_backend.dto.statistics.StatisticsResponseDto;
-import com.costrip.costrip_backend.dto.statistics.StatisticsResponseDto.DailyExpense;
 import com.costrip.costrip_backend.entity.Trip;
 import com.costrip.costrip_backend.entity.User;
 import com.costrip.costrip_backend.entity.enums.ExpenseCategory;
@@ -93,6 +92,7 @@ public class StatisticsService {
                         .toList();
 
         return StatisticsResponseDto.builder()
+                .totalSpent(grandTotal)
                 .categoryAmounts(categoryAmounts)
                 .categoryRates(categoryRates)
                 .dailyAmounts(dailyAmounts)
@@ -109,11 +109,15 @@ public class StatisticsService {
         findTripByIdAndUserId(tripId, user.getId());
 
         // 🔥 핵심 변경 (ExpenseBudget 기반)
-        BigDecimal totalBudget =
-                expenseBudgetRepository.sumBudgetByTripId(tripId);
+        BigDecimal totalBudget = expenseBudgetRepository.sumBudgetByTripId(tripId);
+        if (totalBudget == null) {
+            totalBudget = BigDecimal.ZERO;
+        }
 
-        BigDecimal totalSpent =
-                expenseRepository.sumAmountByTrip(tripId);
+        BigDecimal totalSpent = expenseRepository.sumAmountByTrip(tripId);
+        if (totalSpent == null) {
+            totalSpent = BigDecimal.ZERO;
+        }
 
         BigDecimal remaining =
                 totalBudget.subtract(totalSpent);
