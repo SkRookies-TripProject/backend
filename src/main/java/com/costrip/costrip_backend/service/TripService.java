@@ -2,9 +2,11 @@ package com.costrip.costrip_backend.service;
 
 import com.costrip.costrip_backend.dto.trip.TripRequestDto;
 import com.costrip.costrip_backend.dto.trip.TripResponseDto;
+import com.costrip.costrip_backend.entity.Attachment;
 import com.costrip.costrip_backend.entity.ExpenseBudget;
 import com.costrip.costrip_backend.entity.Trip;
 import com.costrip.costrip_backend.entity.User;
+import com.costrip.costrip_backend.repository.AttachmentRepository;
 import com.costrip.costrip_backend.repository.ExpenseBudgetRepository;
 import com.costrip.costrip_backend.repository.ExpenseRepository;
 import com.costrip.costrip_backend.repository.TripRepository;
@@ -26,54 +28,45 @@ public class TripService {
     private final UserRepository userRepository;
     private final ExpenseRepository expenseRepository;
     private final ExpenseBudgetRepository expenseBudgetRepository;
+    private final AttachmentRepository attachmentRepository;
 
     /**
-     * 여행 목록 조회
+     * 로그인한 사용자의 여행 목록을 조회하고, 각 여행의 첫 메모 이미지를 썸네일로 내려준다.
      */
     public List<TripResponseDto> getTripsByUser(String email) {
-
         User user = findUserByEmail(email);
-
-        List<Trip> trips =
-                tripRepository.findByUserIdOrderByCreatedAtDesc(user.getId());
+        List<Trip> trips = tripRepository.findByUserIdOrderByCreatedAtDesc(user.getId());
 
         return trips.stream()
                 .map(trip -> {
+                    BigDecimal totalSpent = expenseRepository.sumAmountByTrip(trip.getId());
+                    BigDecimal totalBudget = expenseBudgetRepository.sumBudgetByTripId(trip.getId());
+                    String thumbnailPath = findThumbnailPath(trip.getId());
 
-                    BigDecimal totalSpent =
-                            expenseRepository.sumAmountByTrip(trip.getId());
-
-                    BigDecimal totalBudget =
-                            expenseBudgetRepository.sumBudgetByTripId(trip.getId());
-
-                    return TripResponseDto.from(trip, totalBudget, totalSpent);
+                    return TripResponseDto.from(trip, totalBudget, totalSpent, thumbnailPath);
                 })
                 .toList();
     }
 
     /**
-     * 여행 상세 조회
+     * 여행 상세 조회 시에도 같은 썸네일 규칙을 적용한다.
      */
     public TripResponseDto getTripById(String email, Long tripId) {
-
         User user = findUserByEmail(email);
         Trip trip = findTripByIdAndUserId(tripId, user.getId());
 
-        BigDecimal totalSpent =
-                expenseRepository.sumAmountByTrip(trip.getId());
+        BigDecimal totalSpent = expenseRepository.sumAmountByTrip(trip.getId());
+        BigDecimal totalBudget = expenseBudgetRepository.sumBudgetByTripId(trip.getId());
+        String thumbnailPath = findThumbnailPath(trip.getId());
 
-        BigDecimal totalBudget =
-                expenseBudgetRepository.sumBudgetByTripId(trip.getId());
-
-        return TripResponseDto.from(trip, totalBudget, totalSpent);
+        return TripResponseDto.from(trip, totalBudget, totalSpent, thumbnailPath);
     }
 
     /**
-     * 여행 등록
+     * 여행을 생성한다.
      */
     @Transactional
     public TripResponseDto createTrip(String email, TripRequestDto dto) {
-
         User user = findUserByEmail(email);
         validateDateRange(dto.getStartDate(), dto.getEndDate());
 
@@ -87,7 +80,6 @@ public class TripService {
 
         tripRepository.save(trip);
 
-        //
         if (dto.getBudgets() != null) {
             List<ExpenseBudget> budgets = dto.getBudgets().stream()
                     .map(b -> new ExpenseBudget(trip, b.getCategory(), b.getAmount()))
@@ -96,15 +88,14 @@ public class TripService {
             expenseBudgetRepository.saveAll(budgets);
         }
 
-        return TripResponseDto.from(trip);
+        return TripResponseDto.from(trip, null);
     }
 
     /**
-     * 여행 수정
+     * 여행 기본 정보를 수정한다.
      */
     @Transactional
     public TripResponseDto updateTrip(String email, Long tripId, TripRequestDto dto) {
-
         User user = findUserByEmail(email);
         Trip trip = findTripByIdAndUserId(tripId, user.getId());
 
@@ -115,22 +106,28 @@ public class TripService {
         trip.setStartDate(dto.getStartDate());
         trip.setEndDate(dto.getEndDate());
 
-        return TripResponseDto.from(trip);
+        String thumbnailPath = findThumbnailPath(trip.getId());
+        return TripResponseDto.from(trip, thumbnailPath);
     }
 
     /**
-     * 여행 삭제
+     * 여행을 삭제한다.
      */
     @Transactional
     public void deleteTrip(String email, Long tripId) {
-
         User user = findUserByEmail(email);
         Trip trip = findTripByIdAndUserId(tripId, user.getId());
-
         tripRepository.delete(trip);
     }
 
-    // ── 헬퍼 ─────────────────────────
+    /**
+     * 첫 메모 이미지 한 장을 여행 썸네일로 사용한다.
+     */
+    private String findThumbnailPath(Long tripId) {
+        return attachmentRepository.findFirstByTripIdAndJournalEntryIsNotNullOrderByCreatedAtAsc(tripId)
+                .map(Attachment::getFilePath)
+                .orElse(null);
+    }
 
     private User findUserByEmail(String email) {
         return userRepository.findByEmail(email)

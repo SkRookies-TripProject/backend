@@ -41,6 +41,9 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         // 브라우저 preflight 요청은 인증 없이 먼저 통과시킨다.
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                        // 업로드된 이미지는 브라우저에서 직접 열 수 있도록 공개한다.
+                        //개발연동 테스트용 공개 접근, 운영 시 인증 API로 전환 검토
+                        .requestMatchers("/uploads/**").permitAll()
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/api/**").authenticated()
                 )

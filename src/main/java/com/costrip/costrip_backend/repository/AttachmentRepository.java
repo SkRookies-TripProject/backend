@@ -20,6 +20,8 @@ public interface AttachmentRepository extends JpaRepository<Attachment, Long> {
 
     List<Attachment> findByJournalEntryOrderByCreatedAtAsc(JournalEntry journalEntry);
 
+    Optional<Attachment> findFirstByTripIdAndJournalEntryIsNotNullOrderByCreatedAtAsc(Long tripId);
+
     @Query("""
             SELECT attachment
             FROM Attachment attachment
