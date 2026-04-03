@@ -23,6 +23,9 @@ spring:
     locations: classpath:db/migration   # 파일이 아니라 폴더!
     baseline-on-migrate: true
 
+  profiles:
+    include: secret
+
 server:
   port: 8080
 
@@ -32,3 +35,7 @@ app:
 jwt:
   secret: ${JWT_SECRET:5367566B59703373367639792F423F4528482B4D6251655468576D5A71347437}
   expiration: ${JWT_EXPIRATION:3600}
+
+anthropic:
+  api:
+    key: ${ANTHROPIC_API_KEY}

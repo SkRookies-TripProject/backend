@@ -45,6 +45,7 @@ public class SecurityConfig {
                         //개발연동 테스트용 공개 접근, 운영 시 인증 API로 전환 검토
                         .requestMatchers("/uploads/**").permitAll()
                         .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers("/api/receipt/**").permitAll()
                         .requestMatchers("/api/**").authenticated()
                 )
                 .sessionManagement(session ->
