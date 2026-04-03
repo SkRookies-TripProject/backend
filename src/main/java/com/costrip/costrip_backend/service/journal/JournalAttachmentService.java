@@ -7,6 +7,7 @@ import com.costrip.costrip_backend.exception.ResourceNotFoundException;
 import com.costrip.costrip_backend.repository.AttachmentRepository;
 import com.costrip.costrip_backend.repository.journal.JournalEntryRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,10 +26,12 @@ import java.util.UUID;
 @Transactional(readOnly = true)
 public class JournalAttachmentService {
 
-    private static final Path JOURNAL_UPLOAD_DIR = Paths.get("uploads", "journal");
-
     private final JournalEntryRepository journalEntryRepository;
     private final AttachmentRepository attachmentRepository;
+
+    // 업로드 루트 경로는 환경마다 달라질 수 있어 설정값으로 분리한다.
+    @Value("${app.upload-dir:uploads}")
+    private String uploadDir;
 
     /**
      * 메모 한 건에 이미지 파일을 저장하고 첨부 메타데이터를 반환한다.
@@ -44,11 +47,12 @@ public class JournalAttachmentService {
         }
 
         JournalEntry journalEntry = findJournalEntryByIdAndUser(entryId, email);
-        createUploadDirectoryIfNeeded();
+        Path journalUploadDir = getJournalUploadDir();
+        createUploadDirectoryIfNeeded(journalUploadDir);
 
         return files.stream()
                 .filter(file -> !file.isEmpty())
-                .map(file -> saveAttachment(journalEntry, file))
+                .map(file -> saveAttachment(journalEntry, file, journalUploadDir))
                 .map(JournalAttachmentResponseDto::from)
                 .toList();
     }
@@ -82,12 +86,12 @@ public class JournalAttachmentService {
     /**
      * 이미지 파일을 로컬에 저장하고 attachments 테이블에 메타데이터를 기록한다.
      */
-    private Attachment saveAttachment(JournalEntry journalEntry, MultipartFile file) {
+    private Attachment saveAttachment(JournalEntry journalEntry, MultipartFile file, Path journalUploadDir) {
         validateImageFile(file);
 
         String originalFileName = file.getOriginalFilename();
         String storedFileName = createStoredFileName(originalFileName);
-        Path targetPath = JOURNAL_UPLOAD_DIR.resolve(storedFileName);
+        Path targetPath = journalUploadDir.resolve(storedFileName);
 
         try {
             Files.copy(file.getInputStream(), targetPath, StandardCopyOption.REPLACE_EXISTING);
@@ -109,16 +113,16 @@ public class JournalAttachmentService {
     /**
      * 이미지 업로드 경로가 없으면 생성한다.
      */
-    private void createUploadDirectoryIfNeeded() {
+    private void createUploadDirectoryIfNeeded(Path journalUploadDir) {
         try {
-            Files.createDirectories(JOURNAL_UPLOAD_DIR);
+            Files.createDirectories(journalUploadDir);
         } catch (IOException e) {
             throw new RuntimeException("이미지 저장 경로를 생성할 수 없습니다.", e);
         }
     }
 
     /**
-     * 이미지 파일만 업로드되도록 확장자와 MIME 타입을 확인한다.
+     * 이미지 파일만 업로드되도록 MIME 타입을 확인한다.
      */
     private void validateImageFile(MultipartFile file) {
         if (file.isEmpty()) {
@@ -146,20 +150,37 @@ public class JournalAttachmentService {
     }
 
     /**
-     * 파일 삭제는 DB 정리와 별도로 best-effort로 시도한다.
+     * URL 경로를 실제 업로드 디렉터리의 절대 경로로 변환한다.
+     */
+    private Path resolvePhysicalPath(String filePath) {
+        String relativePath = filePath.startsWith("/uploads/")
+                ? filePath.substring("/uploads/".length())
+                : filePath;
+
+        return Paths.get(uploadDir).toAbsolutePath().normalize().resolve(relativePath).normalize();
+    }
+
+    /**
+     * 파일 삭제는 DB 정리와 별도로 시도한다.
      */
     private void deletePhysicalFile(String filePath) {
         if (filePath == null || filePath.isBlank()) {
             return;
         }
 
-        String normalizedPath = filePath.startsWith("/") ? filePath.substring(1) : filePath;
-        Path targetPath = Paths.get(normalizedPath);
+        Path targetPath = resolvePhysicalPath(filePath);
 
         try {
             Files.deleteIfExists(targetPath);
         } catch (IOException e) {
             throw new RuntimeException("이미지 파일 삭제 중 오류가 발생했습니다.", e);
         }
+    }
+
+    /**
+     * 메모 이미지는 업로드 루트 아래 journal 폴더에 저장한다.
+     */
+    private Path getJournalUploadDir() {
+        return Paths.get(uploadDir).toAbsolutePath().normalize().resolve("journal");
     }
 }
