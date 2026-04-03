@@ -23,7 +23,7 @@ import java.util.List;
  *   - CorsConfigurationSource 빈 등록 → Security 필터 체인 내부에서 CORS 처리
  */
 @Configuration
-@Profile("prod")
+//@Profile("prod")
 public class CorsConfig {
 
     @Bean
@@ -43,6 +43,8 @@ public class CorsConfig {
         configuration.setAllowedMethods(Arrays.asList(
                 "GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"
         ));
+
+        configuration.setAllowedHeaders(List.of("*"));
 
         // preflight 응답 캐시 시간 (초) — 동일 경로의 반복 preflight 요청 감소
         configuration.setMaxAge(3600L);
