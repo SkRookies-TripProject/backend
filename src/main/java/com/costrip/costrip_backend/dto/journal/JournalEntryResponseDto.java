@@ -6,6 +6,7 @@ import lombok.Getter;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
 @Builder
@@ -15,6 +16,7 @@ public class JournalEntryResponseDto {
     private Long tripId;
     private LocalDate recordDate;
     private String memo;
+    private List<JournalAttachmentResponseDto> attachments;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
@@ -24,6 +26,9 @@ public class JournalEntryResponseDto {
                 .tripId(journalEntry.getTrip().getId())
                 .recordDate(journalEntry.getRecordDate())
                 .memo(journalEntry.getMemo())
+                .attachments(journalEntry.getAttachments().stream()
+                        .map(JournalAttachmentResponseDto::from)
+                        .toList())
                 .createdAt(journalEntry.getCreatedAt())
                 .updatedAt(journalEntry.getUpdatedAt())
                 .build();

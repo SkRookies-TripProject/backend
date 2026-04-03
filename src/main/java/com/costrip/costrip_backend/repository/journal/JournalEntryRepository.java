@@ -11,18 +11,34 @@ import java.util.Optional;
 
 public interface JournalEntryRepository extends JpaRepository<JournalEntry, Long> {
 
-    // 여행 상세 화면에서 날짜순 목록을 바로 내려주기 위한 조회다.
-    List<JournalEntry> findByTripIdOrderByRecordDateAscCreatedAtAsc(Long tripId);
-
-    // 특정 날짜의 기록만 필터링할 때 사용한다.
-    List<JournalEntry> findByTripIdAndRecordDateOrderByCreatedAtAsc(Long tripId, LocalDate recordDate);
-
-    // 상세 조회에서 소유권을 trip.user 기준으로 같이 확인한다.
     @Query("""
-            SELECT journalEntry
+            SELECT DISTINCT journalEntry
+            FROM JournalEntry journalEntry
+            LEFT JOIN FETCH journalEntry.attachments attachments
+            WHERE journalEntry.trip.id = :tripId
+            ORDER BY journalEntry.recordDate ASC, journalEntry.createdAt ASC
+            """)
+    List<JournalEntry> findByTripIdOrderByRecordDateAscCreatedAtAsc(@Param("tripId") Long tripId);
+
+    @Query("""
+            SELECT DISTINCT journalEntry
+            FROM JournalEntry journalEntry
+            LEFT JOIN FETCH journalEntry.attachments attachments
+            WHERE journalEntry.trip.id = :tripId
+              AND journalEntry.recordDate = :recordDate
+            ORDER BY journalEntry.createdAt ASC
+            """)
+    List<JournalEntry> findByTripIdAndRecordDateOrderByCreatedAtAsc(
+            @Param("tripId") Long tripId,
+            @Param("recordDate") LocalDate recordDate
+    );
+
+    @Query("""
+            SELECT DISTINCT journalEntry
             FROM JournalEntry journalEntry
             JOIN journalEntry.trip trip
             JOIN trip.user user
+            LEFT JOIN FETCH journalEntry.attachments attachments
             WHERE journalEntry.id = :entryId
               AND user.email = :email
             """)
