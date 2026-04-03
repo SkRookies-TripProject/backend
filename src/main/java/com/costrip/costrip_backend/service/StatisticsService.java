@@ -31,17 +31,13 @@ public class StatisticsService {
     private final ExpenseRepository expenseRepository;
     private final ExpenseBudgetRepository expenseBudgetRepository;
 
-    /**
-     * 카테고리별 소비 비율 + 일자별 지출 추이
-     */
     public StatisticsResponseDto getStatistics(String email, Long tripId) {
 
         User user = findUserByEmail(email);
         findTripByIdAndUserId(tripId, user.getId());
 
-        // ── 카테고리별 합계 ─────────────────────
-        List<Object[]> categoryRows =
-                expenseRepository.sumAmountGroupByCategory(tripId);
+        // 1. 카테고리별 합계
+        List<Object[]> categoryRows = expenseRepository.sumAmountGroupByCategory(tripId);
 
         Map<ExpenseCategory, BigDecimal> categoryAmounts = new LinkedHashMap<>();
         BigDecimal grandTotal = BigDecimal.ZERO;
@@ -54,7 +50,12 @@ public class StatisticsService {
             grandTotal = grandTotal.add(amt);
         }
 
-        // ── 카테고리별 비율 ─────────────────────
+        // 카테고리 없는 항목도 0으로 채움
+        for (ExpenseCategory category : ExpenseCategory.values()) {
+            categoryAmounts.putIfAbsent(category, BigDecimal.ZERO);
+        }
+
+        // 2. 카테고리별 비율
         final BigDecimal total = grandTotal;
 
         Map<ExpenseCategory, Double> categoryRates =
@@ -71,9 +72,8 @@ public class StatisticsService {
                                 LinkedHashMap::new
                         ));
 
-        // ── 일자별 합계 ─────────────────────
-        List<Object[]> dailyRows =
-                expenseRepository.sumAmountGroupByDate(tripId);
+        // 3. 일자별 합계
+        List<Object[]> dailyRows = expenseRepository.sumAmountGroupByDate(tripId);
 
         Map<LocalDate, BigDecimal> dailyAmounts = new LinkedHashMap<>();
 
@@ -91,24 +91,42 @@ public class StatisticsService {
                                 .build())
                         .toList();
 
+        // 4. 일자별 카테고리별 합계
+        List<Object[]> dailyCategoryRows = expenseRepository.sumAmountGroupByDateAndCategory(tripId);
+
+        Map<LocalDate, Map<ExpenseCategory, BigDecimal>> dailyCategoryAmounts = new LinkedHashMap<>();
+
+        for (Object[] row : dailyCategoryRows) {
+            LocalDate date = (LocalDate) row[0];
+            ExpenseCategory category = (ExpenseCategory) row[1];
+            BigDecimal amount = (BigDecimal) row[2];
+
+            dailyCategoryAmounts
+                    .computeIfAbsent(date, d -> {
+                        Map<ExpenseCategory, BigDecimal> categoryMap = new LinkedHashMap<>();
+                        for (ExpenseCategory c : ExpenseCategory.values()) {
+                            categoryMap.put(c, BigDecimal.ZERO);
+                        }
+                        return categoryMap;
+                    })
+                    .put(category, amount);
+        }
+
         return StatisticsResponseDto.builder()
                 .totalSpent(grandTotal)
                 .categoryAmounts(categoryAmounts)
                 .categoryRates(categoryRates)
                 .dailyAmounts(dailyAmounts)
+                .dailyCategoryAmounts(dailyCategoryAmounts)
                 .dailyExpenses(dailyExpenses)
                 .build();
     }
 
-    /**
-     * 예산 사용 현황
-     */
     public BudgetSummaryResponseDto getBudgetSummary(String email, Long tripId) {
 
         User user = findUserByEmail(email);
         findTripByIdAndUserId(tripId, user.getId());
 
-        // 🔥 핵심 변경 (ExpenseBudget 기반)
         BigDecimal totalBudget = expenseBudgetRepository.sumBudgetByTripId(tripId);
         if (totalBudget == null) {
             totalBudget = BigDecimal.ZERO;
@@ -119,13 +137,11 @@ public class StatisticsService {
             totalSpent = BigDecimal.ZERO;
         }
 
-        BigDecimal remaining =
-                totalBudget.subtract(totalSpent);
+        BigDecimal remaining = totalBudget.subtract(totalSpent);
 
         double usageRate = totalBudget.compareTo(BigDecimal.ZERO) == 0
                 ? 0.0
-                : totalSpent
-                .multiply(BigDecimal.valueOf(100))
+                : totalSpent.multiply(BigDecimal.valueOf(100))
                 .divide(totalBudget, 1, RoundingMode.HALF_UP)
                 .doubleValue();
 
@@ -136,9 +152,7 @@ public class StatisticsService {
                 .usageRate(usageRate)
                 .build();
     }
-
-    // ── 헬퍼 ─────────────────────────
-
+    // 헬퍼
     private User findUserByEmail(String email) {
         return userRepository.findByEmail(email)
                 .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다: " + email));
