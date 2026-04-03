@@ -54,4 +54,12 @@ public interface ExpenseRepository extends JpaRepository<Expense, Long> {
     // 모든 총 지출액 (관리자에서 사용)
     @Query("SELECT COALESCE(SUM(e.amount), 0) FROM Expense e")
     BigDecimal getTotalAmount();
+
+    // 관리자 대시보드 (지출 비율 계산 용)
+    @Query("""
+    SELECT e.category, COALESCE(SUM(e.amount), 0)
+    FROM Expense e
+    GROUP BY e.category
+    """)
+        List<Object[]> sumByCategory();
 }

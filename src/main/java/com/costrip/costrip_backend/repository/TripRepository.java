@@ -28,4 +28,13 @@ public interface TripRepository extends JpaRepository<Trip, Long> {
     //  여행 총 지출 금액
     @Query("SELECT COALESCE(SUM(e.amount), 0) FROM Expense e WHERE e.trip.id = :tripId")
     BigDecimal sumExpenseAmountByTripId(@Param("tripId") Long tripId);
+
+    // 관리자 대시보드 (여행 순위 계산 용0
+    @Query("""
+    SELECT t.country, COUNT(t)
+    FROM Trip t
+    GROUP BY t.country
+    ORDER BY COUNT(t) DESC
+    """)
+        List<Object[]> countGroupByCountry();
 }
