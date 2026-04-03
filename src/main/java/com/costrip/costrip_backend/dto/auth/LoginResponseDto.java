@@ -13,4 +13,5 @@ public class LoginResponseDto {
     private String tokenType;   // "Bearer"
     private String name;
     private String email;
+    private String role;
 }

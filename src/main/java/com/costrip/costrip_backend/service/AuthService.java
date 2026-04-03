@@ -63,6 +63,7 @@ public class AuthService {
                 .tokenType("Bearer")
                 .name(user.getName())
                 .email(user.getEmail())
+                .role(user.getRole())
                 .build();
     }
 }
