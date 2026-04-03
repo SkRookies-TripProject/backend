@@ -51,7 +51,7 @@ CREATE TABLE expenses (
 );
 
 -- =========================
--- EXPENSES_BUDGET
+-- trip_BUDGET
 -- =========================
 CREATE TABLE trip_budgets (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
