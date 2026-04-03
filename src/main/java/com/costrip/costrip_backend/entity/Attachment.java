@@ -1,5 +1,6 @@
 package com.costrip.costrip_backend.entity;
 
+import com.costrip.costrip_backend.entity.journal.JournalEntry;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -21,6 +22,10 @@ public class Attachment {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "trip_id", nullable = false)
     private Trip trip;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "journal_entry_id")
+    private JournalEntry journalEntry;
 
     @Column(name = "file_name", length = 255)
     private String fileName;

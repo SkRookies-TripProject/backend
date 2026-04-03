@@ -1,11 +1,14 @@
 package com.costrip.costrip_backend.entity.journal;
 
+import com.costrip.costrip_backend.entity.Attachment;
 import com.costrip.costrip_backend.entity.Trip;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "journal_entries")
@@ -29,6 +32,10 @@ public class JournalEntry {
 
     @Column(length = 1000)
     private String memo;
+
+    @OneToMany(mappedBy = "journalEntry", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    private List<Attachment> attachments = new ArrayList<>();
 
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
