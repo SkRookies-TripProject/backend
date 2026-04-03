@@ -41,7 +41,9 @@ public class SecurityConfig {
                 // FilterRegistrationBean보다 먼저 실행되는 문제를 해결
                 .cors(Customizer.withDefaults())
                 .authorizeHttpRequests(auth -> {
-                    auth.requestMatchers("/api/auth/**").permitAll()
+                    auth
+                            .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll()
+                            .requestMatchers("/api/auth/**").permitAll()
                             .requestMatchers("/api/**").authenticated();
                 })
                 .sessionManagement(session ->
