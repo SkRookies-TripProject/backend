@@ -23,16 +23,9 @@ spring:
     locations: classpath:db/migration
     baseline-on-migrate: true
 
-<<<<<<< HEAD
+
   profiles:
     include: secret
-=======
-  servlet:
-    multipart:
-      # 메모 이미지 업로드를 위해 파일 크기 제한을 늘린다.
-      max-file-size: 10MB
-      max-request-size: 20MB
->>>>>>> origin/dev
 
 server:
   port: 8080
