@@ -14,14 +14,14 @@ import java.math.BigDecimal;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/trips")
 @RequiredArgsConstructor
 public class ExpenseBudgetController {
 
     private final ExpenseBudgetService expenseBudgetService;
 
     // 전체 예산
-    @GetMapping("/trips/{tripId}/budget")
+    @GetMapping("/{tripId}/budget")
     public ResponseEntity<ApiResponse<BigDecimal>> getTotalBudget(
             @AuthenticationPrincipal UserDetails userDetails,
             @PathVariable Long tripId) {
@@ -34,7 +34,7 @@ public class ExpenseBudgetController {
     }
 
     // 카테고리별 예산 목록
-    @GetMapping("/trips/{tripId}/budgets")
+    @GetMapping("/{tripId}/budgets")
     public ResponseEntity<ApiResponse<List<ExpenseBudgetResponseDto>>> getBudgets(
             @AuthenticationPrincipal UserDetails userDetails,
             @PathVariable Long tripId) {
