@@ -17,4 +17,6 @@ public interface ExpenseBudgetRepository extends JpaRepository<ExpenseBudget, Lo
     BigDecimal sumBudgetByTripId(@Param("tripId") Long tripId);
 
     List<ExpenseBudget> findByTrip(Trip trip);
+
+    void deleteByTrip(Trip trip);
 }
