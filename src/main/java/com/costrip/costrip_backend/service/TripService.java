@@ -106,6 +106,15 @@ public class TripService {
         trip.setStartDate(dto.getStartDate());
         trip.setEndDate(dto.getEndDate());
 
+        if (dto.getBudgets() != null) {
+            expenseBudgetRepository.deleteByTrip(trip);  // 기존 예산 삭제
+
+            List<ExpenseBudget> budgets = dto.getBudgets().stream()
+                    .map(b -> new ExpenseBudget(trip, b.getCategory(), b.getAmount()))
+                    .toList();
+            expenseBudgetRepository.saveAll(budgets);    // 새 예산 저장
+        }
+
         String thumbnailPath = findThumbnailPath(trip.getId());
         return TripResponseDto.from(trip, thumbnailPath);
     }
