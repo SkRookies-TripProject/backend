@@ -3,6 +3,7 @@ package com.costrip.costrip_backend.repository;
 import com.costrip.costrip_backend.entity.Attachment;
 import com.costrip.costrip_backend.entity.Trip;
 import com.costrip.costrip_backend.entity.journal.JournalEntry;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -20,7 +21,20 @@ public interface AttachmentRepository extends JpaRepository<Attachment, Long> {
 
     List<Attachment> findByJournalEntryOrderByCreatedAtAsc(JournalEntry journalEntry);
 
-    Optional<Attachment> findFirstByTripIdAndJournalEntryIsNotNullOrderByCreatedAtAsc(Long tripId);
+    @Query("""
+            SELECT attachment
+            FROM Attachment attachment
+            JOIN attachment.journalEntry journalEntry
+            WHERE attachment.trip.id = :tripId
+            ORDER BY journalEntry.createdAt ASC,
+                     journalEntry.id ASC,
+                     attachment.createdAt ASC,
+                     attachment.id ASC
+            """)
+    List<Attachment> findThumbnailCandidatesByTripId(
+            @Param("tripId") Long tripId,
+            Pageable pageable
+    );
 
     @Query("""
             SELECT attachment
