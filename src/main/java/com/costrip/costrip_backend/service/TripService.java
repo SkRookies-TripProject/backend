@@ -12,6 +12,7 @@ import com.costrip.costrip_backend.repository.ExpenseRepository;
 import com.costrip.costrip_backend.repository.TripRepository;
 import com.costrip.costrip_backend.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -133,7 +134,8 @@ public class TripService {
      * 첫 메모 이미지 한 장을 여행 썸네일로 사용한다.
      */
     private String findThumbnailPath(Long tripId) {
-        return attachmentRepository.findFirstByTripIdAndJournalEntryIsNotNullOrderByCreatedAtAsc(tripId)
+        return attachmentRepository.findThumbnailCandidatesByTripId(tripId, PageRequest.of(0, 1)).stream()
+                .findFirst()
                 .map(Attachment::getFilePath)
                 .orElse(null);
     }
