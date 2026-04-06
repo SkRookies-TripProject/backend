@@ -46,8 +46,8 @@ public class SecurityConfig {
                         .requestMatchers("/uploads/**").permitAll()
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/api/receipt/**").permitAll()
-                        .requestMatchers("/api/**").authenticated()
                         .requestMatchers("/api/users/change-password").permitAll()
+                        .requestMatchers("/api/**").authenticated()
                 )
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
