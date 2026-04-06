@@ -51,11 +51,12 @@ public class UserService {
     }
 
     @Transactional
-    public void changePassword(String username, ChangePasswordRequestDto requestDto) {
+    public void changePassword(ChangePasswordRequestDto requestDto) {
 
         // 1. 유저 조회
-        User user = userRepository.findByEmail(username)
-                .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
+        User user = userRepository.findByEmail(requestDto.getEmail())
+                .orElseThrow(() -> new RuntimeException("이메일을 찾을 수 없습니다."));
+
 
         // 2. 현재 비밀번호 검증 (bcrypt 비교)
         if (!passwordEncoder.matches(requestDto.getCurrentPassword(), user.getPassword())) {

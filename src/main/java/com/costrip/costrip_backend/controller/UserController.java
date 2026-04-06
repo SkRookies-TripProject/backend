@@ -26,10 +26,9 @@ public class UserController {
      */
     @PatchMapping("/change-password")
     public ResponseEntity<ApiResponse<Void>> changePassword(
-            @AuthenticationPrincipal UserDetails userDetails,
-            @Valid @RequestBody ChangePasswordRequestDto requestDto) {
+            @Valid @RequestBody ChangePasswordRequestDto requestDto) {  // @AuthenticationPrincipal 제거
 
-        userService.changePassword(userDetails.getUsername(), requestDto);
+        userService.changePassword(requestDto);  // username 안 넘김
 
         return ResponseEntity
                 .ok(ApiResponse.success("비밀번호가 변경되었습니다.", null));
