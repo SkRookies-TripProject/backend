@@ -1,3 +1,5 @@
+package com.costrip.costrip_backend.controller;
+
 import com.costrip.costrip_backend.dto.common.ApiResponse;
 import com.costrip.costrip_backend.dto.expense.ExpenseBudgetResponseDto;
 import com.costrip.costrip_backend.service.ExpenseBudgetService;

@@ -11,6 +11,7 @@ spring:
   jpa:
     hibernate:
       ddl-auto: none
+
     show-sql: true
     properties:
       hibernate:
@@ -23,9 +24,6 @@ spring:
     locations: classpath:db/migration
     baseline-on-migrate: true
 
-
-  profiles:
-    include: secret
 
 server:
   port: 8080
