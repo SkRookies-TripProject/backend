@@ -39,6 +39,10 @@ public class User {
     @Builder.Default
     private List<Trip> trips = new ArrayList<>();
 
+    public void updatePassword(String newPassword) {
+        this.password = newPassword;
+    }
+
     @PrePersist
     protected void onCreate() {
         this.createdAt = LocalDateTime.now();
